@@ -1,5 +1,7 @@
 package view;
 
-public class RegisterFrame {
+import javax.swing.JFrame;
+
+public class RegisterFrame extends JFrame{
 
 }
