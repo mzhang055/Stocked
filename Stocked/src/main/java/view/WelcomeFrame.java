@@ -76,7 +76,7 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 		signUpBtn = new JButton("Sign Up");
 		signUpBtn.setContentAreaFilled(false);
 		signUpBtn.setBorderPainted(false);
-		signUpBtn.setBounds(1320, 30, 100, 80);
+		signUpBtn.setBounds(1250, 30, 150, 80);
 		signUpBtn.addActionListener(this);
 		//set the font
 		Font fontlogin = new Font("Arial", Font.PLAIN, 17);
@@ -119,7 +119,6 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 			new RegisterFrame();
 			dispose();
 		}
-		
 		
 		else if (e.getSource() == loginBtn) {
 			new RegisterFrame();

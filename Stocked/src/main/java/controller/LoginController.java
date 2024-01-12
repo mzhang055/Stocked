@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import model.UserData;
+import model.UserPortfolio;
 import view.RegisterFrame;
 
 public class LoginController {
@@ -60,11 +61,11 @@ public class LoginController {
 				ps.setString(2, user.getPassword());
 				ps.setString(3, user.getFirstName());
 				ps.setString(4, user.getLastName());
-				ps.setString(5, user.getStock1());
-				ps.setString(6, user.getStock2());
-				ps.setString(7, user.getStock3());
-				ps.setString(8, user.getStock4());
-				ps.setString(9, user.getStock5());
+//				ps.setString(5, user.getStock1());
+//				ps.setString(6, user.getStock2());
+//				ps.setString(7, user.getStock3());
+//				ps.setString(8, user.getStock4());
+//				ps.setString(9, user.getStock5());
 
 				//if execution of query is successful, display message to user
 				if (ps.executeUpdate() > 0) {
@@ -109,15 +110,16 @@ public class LoginController {
 				//set its properties
 				if (rs.next()) {
 					UserData studentData = new UserData();
+					UserPortfolio portfolioData = new UserPortfolio();
 					studentData.setUsername(rs.getString("username"));
 					studentData.setPassword(rs.getString("password"));
 					studentData.setFirstName(rs.getString("firstName"));
 					studentData.setLastName(rs.getString("lastName"));
-					studentData.setStock1(rs.getString("stock1"));
-					studentData.setStock2(rs.getString("stock2"));
-					studentData.setStock3(rs.getString("stock3"));
-					studentData.setStock4(rs.getString("stock4"));
-					studentData.setStock5(rs.getString("stock5"));
+//					portfolioData.setStock1(rs.getString("stock1"));
+//					portfolioData.setStock2(rs.getString("stock2"));
+//					portfolioData.setStock3(rs.getString("stock3"));
+//					portfolioData.setStock4(rs.getString("stock4"));
+//					portfolioData.setStock5(rs.getString("stock5"));
 
 					return studentData;
 				}
