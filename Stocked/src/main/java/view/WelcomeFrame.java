@@ -36,6 +36,8 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 		super("Welcome Frame");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(1440, 900);
+		
+		Color lightgrey = Color.decode("#D3D3D3");
 
 		// set up the background image
 		ImageIcon backgroundImg = new ImageIcon("images/welcomeBg.png");
@@ -86,13 +88,13 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 		usernameField = new JTextField(); // instantiate the JTextField
 		usernameField.setBounds(420,370, 600, 80);
 		usernameField.addActionListener(this);
-		usernameField.setBackground(Color.LIGHT_GRAY);
+		usernameField.setBackground(lightgrey);
 		usernameField.setFont(new Font("Arial", Font.PLAIN, 23));
 
 		passwordField = new JPasswordField(); // instantiate the JTextField
 		passwordField.setBounds(420, 480, 600, 80);
 		passwordField.addActionListener(this);
-		passwordField.setBackground(Color.LIGHT_GRAY);
+		passwordField.setBackground(lightgrey);
 		passwordField.setFont(new Font("Arial", Font.PLAIN, 23));
 
 		// adding components to the layered pane

@@ -32,7 +32,7 @@ public class Main {
 
 		AlphaVantage.api().init(cfg);
 
-		AlphaVantage.api().timeSeries().intraday().forSymbol("TSLA").interval(Interval.SIXTY_MIN)
+		AlphaVantage.api().timeSeries().daily().forSymbol("TSLA")
 				.outputSize(OutputSize.COMPACT).dataType(DataType.JSON)
 				.onSuccess(e -> handleSuccess((TimeSeriesResponse) e)).onFailure(e -> handleFailure((e))).fetch();
 
