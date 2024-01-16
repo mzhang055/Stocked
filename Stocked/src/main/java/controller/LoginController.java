@@ -50,14 +50,14 @@ public class LoginController {
 			PreparedStatement ps; //for execution
 			
 			//this string inserts a new user into the database
-			String query = "INSERT INTO `users`(`username`, `password`, `firstName`, `lastName`, `stock1`, `stock2`, `stock3`, `stock4`, `stock5`) "
-					+ "VALUES (?,?,?,?,?,?,?,?,?)";
+			String query = "INSERT INTO `users`(`username`, `password`, `firstName`, `lastName`) "
+					+ "VALUES (?,?,?,?)";
 
 			//set the user data in database with the data the user entered
 			try {
 				ps = ConnectionController.getConnection().prepareStatement(query);
 
-				ps.setString(1, user.getUsername());
+				ps.setString(1, user.getFirstName());
 				ps.setString(2, user.getPassword());
 				ps.setString(3, user.getFirstName());
 				ps.setString(4, user.getLastName());

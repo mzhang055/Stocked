@@ -19,7 +19,7 @@ public class ConnectionController {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			
 			//establish a connection to the MySQL database
-			con = DriverManager.getConnection("jdbc:mysql://localhost/stock users", "root", "");
+			con = DriverManager.getConnection("jdbc:mysql://localhost/stocked", "root", "");
 			
 			//handle errors
 		} catch (Exception ex) {
