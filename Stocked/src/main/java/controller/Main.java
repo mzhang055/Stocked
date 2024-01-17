@@ -14,7 +14,6 @@ import com.crazzyghost.alphavantage.AlphaVantage;
 import com.crazzyghost.alphavantage.AlphaVantageException;
 import com.crazzyghost.alphavantage.Config;
 import com.crazzyghost.alphavantage.parameters.DataType;
-import com.crazzyghost.alphavantage.parameters.Interval;
 import com.crazzyghost.alphavantage.parameters.OutputSize;
 import com.crazzyghost.alphavantage.timeseries.response.StockUnit;
 import com.crazzyghost.alphavantage.timeseries.response.TimeSeriesResponse;
@@ -34,7 +33,7 @@ public class Main {
 
 		AlphaVantage.api().init(cfg);
 
-		AlphaVantage.api().timeSeries().daily().forSymbol("TSLA")
+		AlphaVantage.api().timeSeries().daily().adjusted().forSymbol("USB-P-Q")
 				.outputSize(OutputSize.COMPACT).dataType(DataType.JSON)
 				.onSuccess(e -> handleSuccess((TimeSeriesResponse) e)).onFailure(e -> handleFailure((e))).fetch();
 

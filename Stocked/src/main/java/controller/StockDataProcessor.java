@@ -25,72 +25,70 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class StockDataProcessor {
-	
-	//fields
-	private String stockRisk;
 
-    public static void main(String[] args) {
-        StockDataProcessor processor = new StockDataProcessor();
-        // 500 will get us the last 2 years of stock data
-        processor.processStockData("JNJ", "historical_data.csv", 500);
+	private Map<String, Double> stockMap;
 
-        Stock stock = new Stock();
-        Map<String, Double> stockMap = stock.getStockMap("listing_status.csv");
-        processor.printStockMap(stockMap);
-    }
-    
-    
-    public void printStockMap(Map<String, Double> stockMap) {
-        System.out.println("Printing Stock Map:");
-        for (Map.Entry<String, Double> entry : stockMap.entrySet()) {
-            System.out.println("Stock Symbol: " + entry.getKey() + ", Value: " + entry.getValue());
-        }
-    }
+	public static void main(String[] args) {
+		StockDataProcessor processor = new StockDataProcessor();
 
-    public void processStockData(String symbol, String outputFile, int dataPoints) {
-        Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
-        AlphaVantage.api().init(cfg);
+		// fetch most active stock symbols and store in the stockMap field
+		try {
+			StockSymbolsController.getMostActiveStockSymbols();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// Populate the stockMap with standard deviations
+		processor.populateStockMap(StockSymbolsController.getStockMap(), 500);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            TimeSeriesResponse response = AlphaVantage.api()
-                    .timeSeries()
-                    .daily()
-                    .forSymbol(symbol)
-                    .outputSize(OutputSize.FULL)
-                    .dataType(DataType.JSON)
-                    .fetchSync();
+		// Print the updated stockMap
+		processor.printStockMap(processor.stockMap);
+	}
 
-            List<StockUnit> stockUnits = response.getStockUnits();
+	public void populateStockMap(Map<String, Double> symbols, int dataPoints) {
+		stockMap = new HashMap<>();
 
-            // Write historical closing prices and calculate daily returns to CSV file
-            writeStockDataToCSV(writer, stockUnits, dataPoints);
+		for (String symbol : symbols.keySet()) {
+			processStockData(symbol, dataPoints);
+		}
 
-            // Calculate standard deviation
-            double standardDeviation = calculateStandardDeviation(stockUnits, dataPoints);
-            System.out.println("Standard Deviation for " + symbol + ": " + standardDeviation);
+		// Round the values in the stockMap to 4 decimal places
+		// source: https://www.baeldung.com/java-round-decimal-number 
+		// and https://stackoverflow.com/questions/53947390/mapstring-integer-getting-rounded-int-percentage
+		stockMap.replaceAll((key, value) -> value != null ? Math.round(value * 10000.0) / 10000.0 : null);
+	}
 
-            // Use the standard deviation for further processing or matching algorithm
-        } catch (AlphaVantageException | IOException e) {
-            e.printStackTrace();
-        }
-    }
+	public void printStockMap(Map<String, Double> stockMap) {
+		System.out.println("Printing Stock Map:");
+		for (Map.Entry<String, Double> entry : stockMap.entrySet()) {
+			System.out.println("Stock Symbol: " + entry.getKey() + ", Value: " + entry.getValue());
+		}
+	}
 
-    private void writeStockDataToCSV(BufferedWriter writer, List<StockUnit> stockUnits, int dataPoints) throws IOException {
-        writer.write("Date,Close,DailyReturn\n");
+	public void processStockData(String symbol, int dataPoints) {
+		Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
+		AlphaVantage.api().init(cfg);
+		System.out.println("Processing data for symbol: " + symbol);
 
-        for (int i = 1; i < dataPoints; i++) {
-            StockUnit current = stockUnits.get(i);
-            StockUnit previous = stockUnits.get(i - 1);
+		try {
+			TimeSeriesResponse response = AlphaVantage.api().timeSeries().daily().forSymbol(symbol)
+					.outputSize(OutputSize.FULL).dataType(DataType.JSON).fetchSync();
 
-            double dailyReturn = (current.getClose() - previous.getClose()) / previous.getClose() * 100;
+			List<StockUnit> stockUnits = response.getStockUnits();
 
-            writer.write(current.getDate() + "," + current.getClose() + "," + dailyReturn + "\n");
-        }
-    }
+			// Calculate standard deviation
+			double standardDeviation = calculateStandardDeviation(stockUnits, dataPoints);
+			stockMap.put(symbol, standardDeviation);
 
+			System.out.println("Standard Deviation for " + symbol + ": " + standardDeviation);
 
+		} catch (AlphaVantageException e) {
+			e.printStackTrace();
+		}
+	}
     /*source : https://www.businessinsider.com/personal-finance/how-to-find-standard-deviation
      * calculates the standard deviation of a stock by 
      * 1. calcualte the average return (the mean) for the time period. the returns
@@ -122,8 +120,9 @@ public class StockDataProcessor {
 			sumSquaredDiff += Math.pow(diff, 2);
 		}
 
-        double result = sumSquaredDiff; // Corrected this line
-        double standardDeviation = Math.sqrt(result / (dataPoints - 1)); // Corrected this line
+        double result = sumSquaredDiff; 
+        //(data points -1) to account for errors if there is no previous data point
+        double standardDeviation = Math.sqrt(result / (dataPoints - 1)); 
 
         // Determine and print the risk level based on ranges
         String riskLevel = determineStockRiskUsingRanges(standardDeviation, mean);
@@ -133,21 +132,16 @@ public class StockDataProcessor {
 		return standardDeviation;
 	}
 
-	/*
-	 * this method determines the riskiness of a stock by using its percentage
-	 * deviation (standard deviation/mean) x 100 - i decided not to use regular
-	 * standard deviation for this because the ranges can vary greatly, leading to
-	 * results that were hard to standardize
-	 */
+
 	private String determineStockRiskUsingRanges(double standardDeviation, double mean) {
 
-		if (standardDeviation <= 0.5) {
+		if (standardDeviation <= 1.0) {
 			return "Very Low Risk";
-		} else if (standardDeviation <= 1.0) {
-			return "Low Risk";
 		} else if (standardDeviation <= 1.5) {
+			return "Low Risk";
+		} else if (standardDeviation <= 2) {
 			return "Moderate Risk";
-		} else if (standardDeviation <= 2.0) {
+		} else if (standardDeviation <= 4) {
 			return "High Risk";
 		} else {
 			return "Very High Risk";
