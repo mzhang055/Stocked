@@ -82,12 +82,11 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		passwordField = createPlaceholderTextField("Enter your password", 745, 350, 500, 80);
 
 		// Creates the survey JPanel
-	
-        surveyPanel = new SurveyPanel();
-        surveyPanel.setBounds(0,500, SurveyPanel.getQuestionSizeX(), SurveyPanel.getQuestionSizeY());
-        layeredPane.add(surveyPanel, Integer.valueOf(5)); // Change the layer value to 5 or higher
-        setSurveyPanelVisibility(true);  // Ensure the panel is initially visible
 
+		surveyPanel = new SurveyPanel();
+		surveyPanel.setBounds(0, 500, SurveyPanel.getQuestionSizeX(), SurveyPanel.getQuestionSizeY());
+		layeredPane.add(surveyPanel, Integer.valueOf(5)); // Change the layer value to 5 or higher
+		setSurveyPanelVisibility(true); // Ensure the panel is initially visible
 
 		ImageIcon confirmIcon = new ImageIcon("images/fwdBtn.png");
 		fwdBtn = new JButton(confirmIcon);
@@ -117,11 +116,10 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		setVisible(true);
 
 	}
-	
-	public void setSurveyPanelVisibility(boolean visible) {
-	    surveyPanel.setVisible(visible);
-	}
 
+	public void setSurveyPanelVisibility(boolean visible) {
+		surveyPanel.setVisible(visible);
+	}
 
 	// method to create a JTextField with placeholder text
 	private JTextField createPlaceholderTextField(String placeholder, int x, int y, int width, int height) {
@@ -172,11 +170,27 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fwdBtn) {
 			collectUserData();
+			RiskController riskController = new RiskController();
+			riskController.determineUserRisk();
+			// calculateRiskAndPrintResults(); // Call the method to calculate risk
+
 			System.out.println(userData.getFirstName());
 			System.out.println("clicked");
 			LoginController.addUserToDatabase(userData);
 		}
 	}
+
+//	// Method to calculate risk using RiskController and print results
+//	private void calculateRiskAndPrintResults() {
+//	    // Assuming riskController is an instance of RiskController
+//	    RiskController riskController = new RiskController();
+//
+//	    // Call calculateRisk method with the buttonValues HashMap
+//	    int userRisk = riskController.calculateRisk(SurveyPanel.buttonValues);
+//
+//	    // testing
+//	    System.out.println("User's Risk: " + userRisk);
+//	}
 
 	public static void main(String[] args) {
 		new RegisterFrame();

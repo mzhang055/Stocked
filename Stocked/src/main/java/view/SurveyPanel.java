@@ -21,7 +21,7 @@ public class SurveyPanel extends JPanel implements MouseListener {
 	private JPanel buttonPanel;
 
 	// HashMap to store button values
-	private HashMap<Integer, Integer> buttonValues;
+	public static HashMap<Integer, Integer> buttonValues;
 
 	// Index to keep track of the current question
 	private int currentQuestionIndex;
@@ -93,11 +93,9 @@ public class SurveyPanel extends JPanel implements MouseListener {
 	    JButton clickedButton = (JButton) e.getSource();
 	    String buttonText = clickedButton.getText();
 
-	    // Determine the weighting based on the current question index
-	    int currentWeighting = determineWeighting(currentQuestionIndex);
-
+	    
 	    // Store the button value in the HashMap using the current question index as a key
-	    buttonValues.put(currentQuestionIndex, Integer.parseInt(buttonText) * currentWeighting);
+	    buttonValues.put(currentQuestionIndex, Integer.parseInt(buttonText));
 
 	    // Move on to the next question
 	    currentQuestionIndex++;
@@ -122,19 +120,6 @@ public class SurveyPanel extends JPanel implements MouseListener {
 	    System.out.println("Button Values: " + buttonValues);
 	}
 
-	// Determine the weighting based on the current question index
-	private int determineWeighting(int questionIndex) {
-	    if (questionIndex >= 0 && questionIndex < 3) {
-	        return 1;
-	    } else if (questionIndex >= 3 && questionIndex < 6) {
-	        return 2;
-	    } else if (questionIndex == 6) {
-	        return 3;
-	    } else {
-	        // Default weighting if the index doesn't match any criteria
-	        return 1;
-	    }
-	}
 
 
 	@Override
