@@ -172,6 +172,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 			collectUserData();
 			RiskController riskController = new RiskController();
 			riskController.determineUserRisk();
+			//.parseCSV("TickerSymbol.csv");
 			// calculateRiskAndPrintResults(); // Call the method to calculate risk
 
 			System.out.println(userData.getFirstName());

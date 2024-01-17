@@ -4,12 +4,12 @@
 
 package application;
 
-import view.LoginFrame;
+import view.WelcomeFrame;
 
 public class StockedApplication {
 	
 	public static void main(String[] args) {
-		LoginFrame login = new LoginFrame();
+		WelcomeFrame welcome = new WelcomeFrame();
 	}
 
 }

@@ -18,6 +18,8 @@ import com.crazzyghost.alphavantage.parameters.Interval;
 import com.crazzyghost.alphavantage.parameters.OutputSize;
 import com.crazzyghost.alphavantage.timeseries.response.StockUnit;
 import com.crazzyghost.alphavantage.timeseries.response.TimeSeriesResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
 
@@ -28,7 +30,7 @@ public class Main {
 
 	public void init() {
 		// initializer
-		Config cfg = Config.builder().key("4O6H83KMNJYW1JZX").timeOut(100).build();
+		Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
 
 		AlphaVantage.api().init(cfg);
 
@@ -40,6 +42,19 @@ public class Main {
 
 	public void handleSuccess(TimeSeriesResponse response) {
 		try {
+			
+			
+	        // Convert TimeSeriesResponse to JSON string
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        String jsonResponse = objectMapper.writeValueAsString(response);
+
+	        // Parse the JSON string using Jackson
+	        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+
+	        // Print the parsed JSON data
+	        System.out.println("Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+
+	     
 			// create a dataset for the close and date data
 			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 

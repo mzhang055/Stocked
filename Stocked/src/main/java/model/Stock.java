@@ -1,72 +1,68 @@
 package model;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+
 public class Stock {
 
-	private String timestamp;
-	private String open;
-	private String high;
-	private String low;
-	private String close;
-	private String volume;
+	private String ticker;
+	private double closePrice;
+	private double percentageDeviation;
+	public HashMap<String, Double> stockMap;
 
-	public Stock(String timestamp, String open, String high, String low, String close, String volume) {
+	public Stock() {
 		super();
-		this.timestamp = timestamp;
-		this.open = open;
-		this.high = high;
-		this.low = low;
-		this.close = close;
-		this.volume = volume;
+
 	}
 
-	public String getTimestamp() {
-		return timestamp;
+    public HashMap<String, Double> getStockMap(String csvFilePath) {
+       stockMap = new HashMap<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(csvFilePath))) {
+            // Read the first line (header) to skip it
+            String header = reader.readLine();
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Split the line by comma
+                String[] parts = line.split(",");
+                if (parts.length > 0) {
+                    // The first column is assumed to be the key (string), and the value is null
+                    stockMap.put(parts[0], null);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return stockMap;
+    }
+
+
+	public String getTicker() {
+		return ticker;
 	}
 
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
+	public void setTicker(String ticker) {
+		this.ticker = ticker;
 	}
 
-	public String getOpen() {
-		return open;
+	public double getClosePrice() {
+		return closePrice;
 	}
 
-	public void setOpen(String open) {
-		this.open = open;
+	public void setClosePrice(double closePrice) {
+		this.closePrice = closePrice;
 	}
 
-	public String getHigh() {
-		return high;
+	public double getPercentageDeviation() {
+		return percentageDeviation;
 	}
 
-	public void setHigh(String high) {
-		this.high = high;
+	public void setPercentageDeviation(double percentageDeviation) {
+		this.percentageDeviation = percentageDeviation;
 	}
-
-	public String getLow() {
-		return low;
-	}
-
-	public void setLow(String low) {
-		this.low = low;
-	}
-
-	public String getClose() {
-		return close;
-	}
-
-	public void setClose(String close) {
-		this.close = close;
-	}
-
-	public String getVolume() {
-		return volume;
-	}
-
-	public void setVolume(String volume) {
-		this.volume = volume;
-	}
-	
-	
 
 }
