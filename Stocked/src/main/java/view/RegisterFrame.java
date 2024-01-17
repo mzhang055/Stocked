@@ -26,7 +26,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 
 	// instance of classes
 	public static UserData userData;
-	public SurveyPanel surveyPanel;
+	public static SurveyPanel surveyPanel;
 	// private static SurveyController surveyController;
 
 	// constructor
@@ -81,28 +81,13 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		usernameField = createPlaceholderTextField("Enter your username", 100, 350, 500, 80);
 		passwordField = createPlaceholderTextField("Enter your password", 745, 350, 500, 80);
 
-		// add Survey panel
-		// Create a new instance of SurveyPanel with the same set of questions
-		List<QuestionData> questionDataList = SurveyPanel.getQuestions();
+		// Creates the survey JPanel
+	
+        surveyPanel = new SurveyPanel();
+        surveyPanel.setBounds(0,500, SurveyPanel.getQuestionSizeX(), SurveyPanel.getQuestionSizeY());
+        layeredPane.add(surveyPanel, Integer.valueOf(5)); // Change the layer value to 5 or higher
+        setSurveyPanelVisibility(true);  // Ensure the panel is initially visible
 
-		// Iterate through the list of questions and create a SurveyPanel for each
-		// question
-		int yPos = 500; // Initial y-position for the SurveyPanel
-		JPanel surveyContainerPanel = new JPanel();
-		surveyContainerPanel.setLayout(new BoxLayout(surveyContainerPanel, BoxLayout.Y_AXIS));
-
-		for (QuestionData questionData : questionDataList) {
-			surveyPanel = new SurveyPanel(questionData.getQuestionText(), questionData.getChoices());
-			surveyPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Align to the left
-			surveyContainerPanel.add(surveyPanel);
-			yPos += 150; // Adjust the y-position for the next SurveyPanel
-		}
-
-		// Set the bounds for the container panel
-		surveyContainerPanel.setBounds(200, 500, 1000, yPos);
-
-		// Add the container panel to the layered pane
-		layeredPane.add(surveyContainerPanel, Integer.valueOf(3));
 
 		ImageIcon confirmIcon = new ImageIcon("images/fwdBtn.png");
 		fwdBtn = new JButton(confirmIcon);
@@ -132,6 +117,11 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		setVisible(true);
 
 	}
+	
+	public void setSurveyPanelVisibility(boolean visible) {
+	    surveyPanel.setVisible(visible);
+	}
+
 
 	// method to create a JTextField with placeholder text
 	private JTextField createPlaceholderTextField(String placeholder, int x, int y, int width, int height) {

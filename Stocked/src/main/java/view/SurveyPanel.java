@@ -1,174 +1,167 @@
+
 package view;
 
-import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
+import javax.swing.*;
 import model.QuestionData;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+public class SurveyPanel extends JPanel implements MouseListener {
 
-public class SurveyPanel extends JPanel {
-    private JLabel questionLabel;
-    private JPanel choicesPanel;
-    private JButton[] choiceButtons;
-    private List<String> choices;
-    private List<Integer> finalSelectedChoices; // List to store the final selected choices
+	public static final int QUESTION_SIZE_X = 1440;
+	public static final int QUESTION_SIZE_Y = 900 - 115;
 
-    private Map<String, Integer> choiceValues; // Map to associate choice text with integer values
-    private JButton selectedButton; // Store the currently selected button
+	private JLabel questionPrompt;
+	private JButton[] buttons;
+	private JButton skipButton, backButton;
+	private JPanel buttonPanel;
 
-    private int currentQuestionIndex = 0; // Index of the current question
+	// HashMap to store button values
+	private HashMap<Integer, Integer> buttonValues;
 
-    public SurveyPanel(String questionText, List<String> choices) {
-        this.choices = choices;
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        finalSelectedChoices = new ArrayList<>();
+	// Index to keep track of the current question
+	private int currentQuestionIndex;
 
-        add(Box.createRigidArea(new Dimension(0, 20)));
+	public SurveyPanel() {
+		setLayout(null);
+		setOpaque(false);
+		setVisible(true);
 
-        Font questionFont = new Font("Arial", Font.BOLD, 22);
-        questionLabel = new JLabel(questionText);
-        questionLabel.setFont(questionFont);
-        add(questionLabel);
+		// Initialize the HashMap
+		buttonValues = new HashMap<>();
 
-        choicesPanel = new JPanel();
-        choicesPanel.setLayout(new BoxLayout(choicesPanel, BoxLayout.Y_AXIS));
-        add(choicesPanel);
+		// Initialize the current question index
+		currentQuestionIndex = 0;
 
-        choiceValues = new HashMap<>();
-        choiceButtons = new JButton[choices.size()];
+		createQuestionPrompt();
+		createButtonPanel();
+		createSkipButton();
+		createBackButton();
+	}
 
-        // Initialize the finalSelectedChoices list with initial values
-        for (int i = 0; i < getQuestions().size(); i++) {
-            finalSelectedChoices.add(-1); // -1 indicates no selection for each question initially
-        }
+	private void createQuestionPrompt() {
+		questionPrompt = new JLabel(QuestionData.getSampleQuestions().get(currentQuestionIndex).getQuestionPrompt(),
+				SwingConstants.CENTER);
+		questionPrompt.setBounds(0, 40, QUESTION_SIZE_X, 200);
+		questionPrompt.setFont(new Font("Arial", Font.BOLD, 50));
+		questionPrompt.setForeground(Color.decode("#1A3351"));
+		questionPrompt.setHorizontalAlignment(SwingConstants.CENTER);
+		questionPrompt.setVerticalAlignment(SwingConstants.CENTER);
+		add(questionPrompt);
+	}
 
-        for (int i = 0; i < choices.size(); i++) {
-            String choiceText = choices.get(i);
-            JButton choiceButton = new JButton(choiceText);
-            choiceButton.setMaximumSize(new Dimension(1300, 200));
-            Font choiceFont = new Font("Arial", Font.PLAIN, 18);
-            choiceButton.setFont(choiceFont);
-            choiceValues.put(choiceText, i + 1);
+	private void createButtonPanel() {
+		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 0)); // Increase horizontal gap
+		buttonPanel.setBounds(0, 300, QUESTION_SIZE_X, 200);
 
-            choiceButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    handleChoiceSelection(choiceButton);
-                }
-            });
-            choicesPanel.add(choiceButton);
-            choiceButtons[i] = choiceButton;
-        }
-    }
-    private void handleChoiceSelection(JButton selectedButton) {
-        if (this.selectedButton != null) {
-            this.selectedButton.setForeground(null);
-        }
+		buttons = new JButton[6];
+		for (int i = 0; i < buttons.length; i++) {
+			buttons[i] = createButton(String.valueOf(i + 1));
+			buttonPanel.add(buttons[i]);
+		}
 
-        selectedButton.setForeground(Color.RED);
-        this.selectedButton = selectedButton;
+		add(buttonPanel);
+	}
 
-        // Update the array with the new index of the selected button based on the current question index
-        int selectedIndex = choicesPanel.getComponentZOrder(selectedButton);
+	private JButton createButton(String text) {
+		JButton button = new JButton(text);
+		button.setForeground(Color.BLUE);
+		button.setFont(new Font("Arial", Font.BOLD, 30));
+		button.setPreferredSize(new Dimension(200, 200));
+		button.addMouseListener(this);
+		return button;
+	}
 
-        // Check if there is already a response for the current question
-        if (finalSelectedChoices.get(currentQuestionIndex) != -1) {
-            // Replace the previous response with the new index
-            finalSelectedChoices.set(currentQuestionIndex, selectedIndex);
-        } else {
-            // Add a new response for the current question
-            finalSelectedChoices.add(currentQuestionIndex, selectedIndex);
-        }
+	private void createSkipButton() {
+		skipButton = createButton("Skip");
+		skipButton.setBounds(QUESTION_SIZE_X - 320 - 30, 600, 300, 110);
+	}
 
-        // Print the updated array
-        printSelectedChoices();
+	private void createBackButton() {
+		backButton = createButton("Back");
+		backButton.setBounds(QUESTION_SIZE_X - 320 - 320 - 30, 600, 300, 110);
+		backButton.setForeground(Color.BLACK);
+		backButton.setEnabled(false);
+	}
 
-        // Move to the next question (if available)
-        if (currentQuestionIndex < finalSelectedChoices.size() - 1) {
-            currentQuestionIndex++;
-            updateQuestion();
-        }
-    }
+	@Override
+	public void mouseClicked(MouseEvent e) {
+	    JButton clickedButton = (JButton) e.getSource();
+	    String buttonText = clickedButton.getText();
 
+	    // Determine the weighting based on the current question index
+	    int currentWeighting = determineWeighting(currentQuestionIndex);
 
-    private void updateQuestion() {
-        // Clear the choicesPanel before adding new buttons
-        choicesPanel.removeAll();
+	    // Store the button value in the HashMap using the current question index as a key
+	    buttonValues.put(currentQuestionIndex, Integer.parseInt(buttonText) * currentWeighting);
 
-        // Update the question label for the next question
-        String nextQuestionText = getQuestions().get(currentQuestionIndex).getQuestionText();
-        questionLabel.setText(nextQuestionText);
+	    // Move on to the next question
+	    currentQuestionIndex++;
+	    if (currentQuestionIndex < QuestionData.getSampleQuestions().size()) {
+	        // If there are more questions, update the question prompt
+	        questionPrompt.setText(String.format("<html><p body style='text-align:center'>%s</p></html>\\\"",
+	                QuestionData.getSampleQuestions().get(currentQuestionIndex).getQuestionPrompt()));
+	    } else {
+	        // Handle the end of the survey (no more questions)
+	        System.out.println("End of survey. Display results or take appropriate action.");
 
-        // Create buttons for the choices of the current question
-        List<String> nextChoices = getQuestions().get(currentQuestionIndex).getChoices();
-        choiceButtons = new JButton[nextChoices.size()];
+	        // Print the entire HashMap
+	        System.out.println("Survey Results: " + buttonValues);
 
-        for (int i = 0; i < nextChoices.size(); i++) {
-            String choiceText = nextChoices.get(i);
-            JButton choiceButton = new JButton(choiceText);
-            choiceButton.setMaximumSize(new Dimension(1300, 200));
-            Font choiceFont = new Font("Arial", Font.PLAIN, 18);
-            choiceButton.setFont(choiceFont);
+	        // Iterate through the entire HashMap and print all contents
+	        for (Entry<Integer, Integer> entry : buttonValues.entrySet()) {
+	            System.out.println("Question " + entry.getKey() + ": ButtonValue=" + entry.getValue());
+	        }
+	    }
 
-            choiceButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    handleChoiceSelection(choiceButton);
-                }
-            });
+	    // Print the current values in the HashMap
+	    System.out.println("Button Values: " + buttonValues);
+	}
 
-            choicesPanel.add(choiceButton);
-            choiceButtons[i] = choiceButton;
-        }
-
-        // Repaint the panel to reflect the changes
-        choicesPanel.revalidate();
-        choicesPanel.repaint();
-    }
-
-    private void printSelectedChoices() {
-        System.out.println("Selected Choices Index: " + finalSelectedChoices);
-    }
-
-
-
-
-	public static List<QuestionData> getQuestions() {
-		List<QuestionData> questionDataList = new ArrayList<>();
-
-		questionDataList.add(new QuestionData("How old are you?", List.of("16-18", "18-20", "20-25", "25+")));
-		questionDataList.add(new QuestionData("How much money have you allocated for investing?",
-				List.of("Less than $100", "$100-$300", "$300-$500", "$500+")));
-		questionDataList.add(new QuestionData("How much investing experience do you have?",
-				List.of("This is my first time", "Less than 1 year", "1-3 years", "More than 4 years")));
-		questionDataList.add(new QuestionData("What is your primary reason for investing?",
-				List.of("Saving for retirement", "Home deposit", "Pay off student loans", "Not sure yet")));
-		questionDataList.add(new QuestionData("When do you expect to pull money from your investments?",
-				List.of("Less than 1 year", "1-4 years", "5-10 years", "10+ years")));
-		questionDataList.add(new QuestionData("Which scenario best describes you?",
-				List.of("Pursue modest increases in my investments, with low risk of loss",
-						"Aim for investment growth, " + "accepting moderate risk of loss",
-						"Seek above-average growth in investments, accepting above-average risk of loss",
-						"Reach for maximum returns, accepting significant risk of loss ")));
-		questionDataList.add(new QuestionData(
-				"How would you react if your investment loses 20% in the first year?",
-				List.of("I would sell my investment because of my concerns",
-						"I would consider selling a part of my investment",
-						"I would wait to see how it continues to perform",
-						"I would buy more of the investment because of the discount")));
-		questionDataList.add(new QuestionData(
-				"Imagine that an investment you own lost 30% of its value in 3 days. What would you do?",
-				List.of("Sell all my shares", "Sell a portion of my shares", "Do nothing", "Buy more shares")));
-
-		return questionDataList;
+	// Determine the weighting based on the current question index
+	private int determineWeighting(int questionIndex) {
+	    if (questionIndex >= 0 && questionIndex < 3) {
+	        return 1;
+	    } else if (questionIndex >= 3 && questionIndex < 6) {
+	        return 2;
+	    } else if (questionIndex == 6) {
+	        return 3;
+	    } else {
+	        // Default weighting if the index doesn't match any criteria
+	        return 1;
+	    }
 	}
 
 
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO: Handle mouse press
+	}
 
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO: Handle mouse release
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// No enlargement on mouse enter
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// No reset on mouse exit
+	}
+
+	public static int getQuestionSizeX() {
+		return QUESTION_SIZE_X;
+	}
+
+	public static int getQuestionSizeY() {
+		return QUESTION_SIZE_Y;
+	}
 }
