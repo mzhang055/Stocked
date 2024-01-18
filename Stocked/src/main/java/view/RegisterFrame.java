@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,8 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	public static UserData userData;
 	public static SurveyPanel surveyPanel;
 	public static RiskController risk;
+	
+	public HomeFrame home;
 
 	public RegisterFrame() {
 		super("Register Frame");
@@ -205,6 +208,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		userData.setAge(ageField.getText());
 		userData.setMoney(moneyField.getText());
 
+		//collect risk information
 		RiskController riskController = new RiskController();
 		riskController.determineUserRisk(SurveyPanel.buttonValues);
 
@@ -225,16 +229,34 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fwdBtn) {
-			collectUserData();
+	        collectUserData();
 
-			// .parseCSV("TickerSymbol.csv");
-			// calculateRiskAndPrintResults(); // Call the method to calculate risk
+	        RiskController risk = new RiskController();
 
-			System.out.println(userData.getFirstName());
-			System.out.println("clicked");
-			LoginController.addUserToDatabase(userData);
+	        try {
+	            StockSymbolsController.getMostActiveStockSymbols();
+	        } catch (IOException i) {
+	            i.printStackTrace();
+	        }
 
-		}
+	        RiskController.stockController = new StockController();
+	        RiskController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
+	        risk.determineStockRisk();
+
+	       // RiskController risk = new RiskController();
+	        // Ensure userData is not null
+	        if (userData != null) {
+	            // Check if risk determination is synchronous
+	            System.out.println("User's risk: " + userData.getRisk());
+	        }
+
+	        LoginController.addUserToDatabase(userData);
+
+	        SwingUtilities.invokeLater(() -> {
+	            home = new HomeFrame();
+	            dispose();
+	        });
+	    }
 	}
 
 //	// Method to calculate risk using RiskController and print results
@@ -249,7 +271,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 //	    System.out.println("User's Risk: " + userRisk);
 //	}
 
-	public static void main(String[] args) {
-		new RegisterFrame();
-	}
+//	public static void main(String[] args) {
+//		new RegisterFrame();
+//	}
 }

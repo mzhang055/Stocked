@@ -34,7 +34,7 @@ public class StockSymbolsController {
         }
     }
 
-    static void getMostActiveStockSymbols() throws IOException {
+    public static void getMostActiveStockSymbols() throws IOException {
         Document doc = Jsoup
                 .connect(BASE_URI.concat("/most-active/?count=25&offset=0"))
                 .userAgent(USER_AGENT)

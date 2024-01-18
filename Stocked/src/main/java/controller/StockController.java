@@ -1,10 +1,6 @@
 /*
  * This class retrieves historical stock data from the alpha vantage api,
- * stores it in a TimeSeriesResponse object, and places this information into a CSV file
- * for time series forecasting (trend prediction) -- this trains the model
- * 
- * This class also calculates the standard deviation of the stock so we can find its 
- * riskiness
+ *
  * 
  */
 

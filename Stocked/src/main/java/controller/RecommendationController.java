@@ -5,9 +5,9 @@ import java.util.Map;
 
 public class RecommendationController {
 
-	private static StockController stockController;
+	public static StockController stockController;
 
-	private void determineStockRisk() {
+	public void determineStockRisk() {
 		// Retrieve stockMap from StockController
 		//Map<String, Double> stockMap = stockController.getStockMap();
 

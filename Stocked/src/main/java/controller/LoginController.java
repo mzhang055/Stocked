@@ -75,12 +75,17 @@ public class LoginController {
 				    JOptionPane.showMessageDialog(null, "New User Added");
 
 				    // create a new instance of registerFrame
-				    home = new HomeFrame();
+				    register = new RegisterFrame();
+				    //home.setVisible(true);
+				
 
 				    //dispose set up frame
 				    SwingUtilities.invokeLater(() -> {
-				        if (home != null) {
-				        	home.dispose();
+				        if (register != null) {
+				        	System.out.println("not null");
+				        	new HomeFrame();
+				        	
+				        	register.dispose();
 				        }
 				    });
 				}
