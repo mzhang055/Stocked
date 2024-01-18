@@ -11,8 +11,9 @@ public class UserData {
 	private String password;
 	private String firstName;
 	private String lastName;
-	private int age;
-	private double money;
+	private String age;
+	private String money;
+	private String risk;
 	
 	
 	//getters and setters
@@ -48,21 +49,31 @@ public class UserData {
 		this.lastName = lastName;
 	}
 
-	public int getAge() {
+
+	public String getAge() {
 		return age;
 	}
 
-	public void setAge(int age) {
+	public void setAge(String age) {
 		this.age = age;
 	}
 
-	public double getMoney() {
+	public String getMoney() {
 		return money;
 	}
 
-	public void setMoney(double money) {
+	public void setMoney(String money) {
 		this.money = money;
 	}
+
+	public String getRisk() {
+		return risk;
+	}
+
+	public void setRisk(String risk) {
+		this.risk = risk;
+	}
+	
 	
 	
 

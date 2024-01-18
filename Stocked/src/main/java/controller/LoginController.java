@@ -50,20 +50,20 @@ public class LoginController {
 			PreparedStatement ps; //for execution
 			
 			//this string inserts a new user into the database
-			String query = "INSERT INTO `users`(`username`, `password`, `firstName`, `lastName`, `age`, `money`) "
-					+ "VALUES (?,?,?,?,?,?)";
+			String query = "INSERT INTO `users`(`username`, `password`, `firstName`, `lastName`, `age`, `money`,`risk`) "
+					+ "VALUES (?,?,?,?,?,?,?)";
 
 			//set the user data in database with the data the user entered
 			try {
 				ps = ConnectionController.getConnection().prepareStatement(query);
 
-				ps.setString(1, user.getFirstName());
+				ps.setString(1, user.getUsername());
 				ps.setString(2, user.getPassword());
 				ps.setString(3, user.getFirstName());
 				ps.setString(4, user.getLastName());
-				ps.setInt(5, user.getAge());
-				ps.setDouble(6, user.getMoney());
-//				ps.setString(7, user.getStock3());
+				ps.setString(5, user.getAge());
+				ps.setString(6, user.getMoney());
+				ps.setString(7, user.getRisk());
 //				ps.setString(8, user.getStock4());
 //				ps.setString(9, user.getStock5());
 
@@ -115,9 +115,9 @@ public class LoginController {
 					studentData.setPassword(rs.getString("password"));
 					studentData.setFirstName(rs.getString("firstName"));
 					studentData.setLastName(rs.getString("lastName"));
-					studentData.setAge(rs.getInt("age"));
-					studentData.setMoney(rs.getDouble("money"));
-//					portfolioData.setStock1(rs.getString("stock1"));
+					studentData.setAge(rs.getString("age"));
+					studentData.setMoney(rs.getString("money"));
+					studentData.setRisk(rs.getString("risk"));
 //					portfolioData.setStock2(rs.getString("stock2"));
 //					portfolioData.setStock3(rs.getString("stock3"));
 //					portfolioData.setStock4(rs.getString("stock4"));

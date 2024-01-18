@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-public class StockDataProcessor {
+public class StockController {
 
 	private Map<String, Double> stockMap;
 
 	public static void main(String[] args) {
-		StockDataProcessor processor = new StockDataProcessor();
+		StockController processor = new StockController();
 
 		// fetch most active stock symbols and store in the stockMap field
 		try {

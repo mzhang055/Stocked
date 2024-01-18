@@ -21,7 +21,7 @@ public class StockSymbolsController {
     static Logger logger = Logger.getLogger(StockSymbolsController.class.getName());
     private static final String BASE_URI = "https://finance.yahoo.com";
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-    // Change the data structure to store stock symbols and null values
+    // hashmap to store stock symbols and null values
     public static Map<String, Double> stockMap = new HashMap<>();
 
     public static void main(String[] args) {
