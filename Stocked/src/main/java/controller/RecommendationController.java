@@ -1,76 +1,55 @@
+/*
+ * this class is responsible for retrieving the values (risk levels) from the stock
+ * hashmap and matches stocks to the user based on the user's risk level. this is
+ * stored in an arraylist
+ */
+
 package controller;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
+
 
 public class RecommendationController {
 
-	public static StockController stockController;
+    public ArrayList<String> matchingStocks = new ArrayList<String>();
 
-	public void determineStockRisk() {
-		// Retrieve stockMap from StockController
-		//Map<String, Double> stockMap = stockController.getStockMap();
+    public void determineMatchingStocks(String userRisk) {
+       // stockController = new StockController();
+        RiskController riskController = new RiskController(); // Initialize riskController
+        riskController.determineStockRisk(); //populate the map
 
-		if (stockController.getStockMap() != null) {
-			// Print stockMap values
-			System.out.println("Printing stockMap values:");
-			for (Map.Entry<String, Double> entry : stockController.getStockMap().entrySet()) {
-				String stockSymbol = entry.getKey();
-				double standardDeviation = entry.getValue();
+        // Ensure stockController is initialized before using it
+        if (riskController != null) {
+            //Map<String, String> stockMap = riskController.getStockRiskLevels();
 
-				// Print the values
-				System.out.println("Stock: " + stockSymbol + ", Standard Deviation: " + standardDeviation);
-			}
+            if (riskController.getStockRiskLevels() != null) {
+                // Determine risk based on stockMap values
+                for (Map.Entry<String, String> entry : riskController.getStockRiskLevels().entrySet()) {
+                    String stockSymbol = entry.getKey();
+                    String riskLevel = entry.getValue();
 
-			System.out.println();
-			System.out.println();
-			// Example: Determine risk based on stockMap values
-			for (Map.Entry<String, Double> entry : stockController.getStockMap().entrySet()) {
-				String stockSymbol = entry.getKey();
-				double standardDeviation = entry.getValue();
+                    // Compare stock risk level with user risk level
+                    if (userRisk.equalsIgnoreCase(riskLevel)) {
+                        // Store matching stocks in the ArrayList
+                        matchingStocks.add(stockSymbol);
+                        
+                    }
+                   
+                }
+            } else {
+                System.out.println("null");
+            }
+        } 
+        
+        printMatchingStocks();
+    }
 
-				// Your logic to determine risk for each stock
-				String riskLevel = determineRiskLevel(standardDeviation);
-
-				// Print risk levels for each stock (testing)
-	
-				System.out.println("Stock: " + stockSymbol + ", Risk Level: " + riskLevel);
-			}
-		} else {
-			System.out.println("stockMap is null. Data might not be retrieved.");
-		}
-	}
-
-	public String determineRiskLevel(double standardDeviation) {
-		if (standardDeviation <= 1.0) {
-			return "Very Low Risk";
-		} else if (standardDeviation <= 1.5) {
-			return "Low Risk";
-		} else if (standardDeviation <= 2) {
-			return "Moderate Risk";
-		} else if (standardDeviation <= 5) {
-			return "High Risk";
-		} else {
-			return "Very High Risk";
-		}
-	}
-	public static void main(String[] args) {
-	    RecommendationController recommendationController = new RecommendationController();
-	    
-	    try {
-	        StockSymbolsController.getMostActiveStockSymbols();
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-
-	    // Assign the created StockController instance to the static variable
-	    RecommendationController.stockController = new StockController();
-	    RecommendationController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
-	    recommendationController.determineStockRisk();
-	    
-	    RiskController risk = new RiskController();
-	    System.out.println("users risk: "+ risk.getUserRisk());
-	}
-
-
+    public void printMatchingStocks() {
+        // Print the matching stocks
+        System.out.println("Matching Stocks:");
+        for (String stockSymbol : matchingStocks) {
+            System.out.println(stockSymbol);
+        }
+    }
 }

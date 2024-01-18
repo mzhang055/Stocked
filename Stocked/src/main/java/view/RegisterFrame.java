@@ -232,6 +232,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	        collectUserData();
 
 	        RiskController risk = new RiskController();
+	        RecommendationController recommend = new RecommendationController();
 
 	        try {
 	            StockSymbolsController.getMostActiveStockSymbols();
@@ -250,6 +251,10 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	            System.out.println("User's risk: " + userData.getRisk());
 	        }
 
+	        //determine the user's matching stocks
+	        recommend.determineMatchingStocks(userData.getRisk());
+	        
+	        
 	        LoginController.addUserToDatabase(userData);
 
 	        SwingUtilities.invokeLater(() -> {
