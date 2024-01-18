@@ -51,10 +51,16 @@ public class RiskController implements Risk {
 
 	// Method to determine the weighting based on the question index
 	private int determineWeighting(int questionIndex) {
-		if (questionIndex >= 0 && questionIndex < 3) {
-			return 1;
-		} else if (questionIndex >= 3) {
-			return 2;
+		
+		//questions 1 to 4 in the survey are more personality focused and less
+		//direct about the user's financial risk
+		if (questionIndex >= 0 && questionIndex < 5) {
+			return 1; //these questions have weight one 1
+		} 
+		//questions 5 to 7 are more direct and focused on the user's 
+		//financial tendencies, thus will have more weighting 
+		else if (questionIndex >= 5) {
+			return 2; //these questions have a weight of 1.5
 		} else {
 			return DEFAULT_WEIGHTING; // Default weighting
 		}

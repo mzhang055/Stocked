@@ -11,6 +11,9 @@ public class UserData {
 	private String password;
 	private String firstName;
 	private String lastName;
+	private int age;
+	private double money;
+	
 	
 	//getters and setters
 	public String getUsername() {
@@ -44,5 +47,23 @@ public class UserData {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public double getMoney() {
+		return money;
+	}
+
+	public void setMoney(double money) {
+		this.money = money;
+	}
+	
+	
 
 }

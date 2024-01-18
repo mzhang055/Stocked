@@ -62,7 +62,7 @@ public class StockDataProcessor {
 	}
 
 	public void printStockMap(Map<String, Double> stockMap) {
-		System.out.println("Printing Stock Map:");
+		System.out.println("\nPrinting Stock Map:");
 		for (Map.Entry<String, Double> entry : stockMap.entrySet()) {
 			System.out.println("Stock Symbol: " + entry.getKey() + ", Value: " + entry.getValue());
 		}
@@ -120,18 +120,17 @@ public class StockDataProcessor {
 			sumSquaredDiff += Math.pow(diff, 2);
 		}
 
-        double result = sumSquaredDiff; 
-        //(data points -1) to account for errors if there is no previous data point
-        double standardDeviation = Math.sqrt(result / (dataPoints - 1)); 
+		double result = sumSquaredDiff;
+		// (dataPoints -1) to account for errors if there is no previous data point
+		double standardDeviation = Math.sqrt(result / (dataPoints - 1));
 
-        // Determine and print the risk level based on ranges
-        String riskLevel = determineStockRiskUsingRanges(standardDeviation, mean);
+		// Determine and print the risk level based on ranges
+		String riskLevel = determineStockRiskUsingRanges(standardDeviation, mean);
 
 		System.out.println("Risk Level: " + riskLevel);
 
 		return standardDeviation;
 	}
-
 
 	private String determineStockRiskUsingRanges(double standardDeviation, double mean) {
 
