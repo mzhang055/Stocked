@@ -38,6 +38,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		// set the background color for all text fields.
 		Color color = new Color(233, 233, 233);
 		Font font = new Font("Arial", Font.PLAIN, 23);
+		Font placeholderfont = new Font("Arial", Font.PLAIN, 15);
 
 		ImageIcon backgroundImg = new ImageIcon("images/profileBg.png");
 		layeredPane = new JLayeredPane();
@@ -55,53 +56,61 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		firstNameField.addActionListener(this);
 		firstNameField.setBackground(color);
 		firstNameField.setFont(font);
-		firstName = firstNameField.getText();
-	
-
-		
-		
-		layeredPane.add(firstNameField, Integer.valueOf(2));
 
 		lastNameField = new JTextField();
 		lastNameField.setBounds(745, 200, 500, 80);
 		lastNameField.addActionListener(this);
 		lastNameField.setBackground(color);
 		lastNameField.setFont(font);
-		layeredPane.add(lastNameField, Integer.valueOf(2));
 
 		usernameField = new JTextField();
-		usernameField.setBounds(100, 300, 500, 80);
+		usernameField.setBounds(100, 350, 500, 80);
 		usernameField.addActionListener(this);
 		usernameField.setBackground(color);
 		usernameField.setFont(font);
-		layeredPane.add(usernameField, Integer.valueOf(2));
 
 		passwordField = new JTextField();
-		passwordField.setBounds(745, 300, 500, 80);
+		passwordField.setBounds(745, 350, 500, 80);
 		passwordField.addActionListener(this);
 		passwordField.setBackground(color);
 		passwordField.setFont(font);
-		layeredPane.add(passwordField, Integer.valueOf(2));
-
+		
 		ageField = new JTextField();
 		ageField.setBounds(100, 400, 500, 80);
 		ageField.addActionListener(this);
 		ageField.setBackground(color);
 		ageField.setFont(font);
-		layeredPane.add(ageField, Integer.valueOf(2));
-
+	
 		moneyField = new JTextField();
 		moneyField.setBounds(745, 400, 500, 80);
 		moneyField.addActionListener(this);
 		moneyField.setBackground(color);
 		moneyField.setFont(font);
-		layeredPane.add(moneyField, Integer.valueOf(2));
 
+		// add styling for text field
+		firstNameField = createPlaceholderTextField("Enter your first name", 100, 200, 500, 80);
+		lastNameField = createPlaceholderTextField("Enter your last name", 745, 200, 500, 80);
+		usernameField = createPlaceholderTextField("Enter your username", 100, 300, 500, 80);
+		passwordField = createPlaceholderTextField("Enter your password", 745, 300, 500, 80);
+		ageField = createPlaceholderTextField("Enter your age", 100, 400, 500, 80);
+		moneyField = createPlaceholderTextField("Enter amount of money to invest", 745, 400, 500, 80);
+
+		// add components to the layered pane
+		layeredPane.add(firstNameField, Integer.valueOf(1));
+		layeredPane.add(lastNameField, Integer.valueOf(1));
+		layeredPane.add(usernameField, Integer.valueOf(1));
+		layeredPane.add(passwordField, Integer.valueOf(1));
+		layeredPane.add(ageField, Integer.valueOf(1));
+		layeredPane.add(moneyField, Integer.valueOf(1));
+		
+
+		//create and add survey panel (questions) to frame
 		surveyPanel = new SurveyPanel();
 		surveyPanel.setBounds(0, 350, SurveyPanel.getQuestionSizeX(), SurveyPanel.getQuestionSizeY());
 		layeredPane.add(surveyPanel, Integer.valueOf(2));
 		surveyPanel.setVisible(true);
 
+		//add the forwards button
 		ImageIcon confirmIcon = new ImageIcon("images/finishBtn.png");
 		fwdBtn = new JButton(confirmIcon);
 		fwdBtn.setOpaque(false);
@@ -151,51 +160,80 @@ public class RegisterFrame extends JFrame implements ActionListener {
 //        return textField;
 //    }
 
-	//create a list of userData objects to store the entered information (composition)
+	// method to create a JTextField with placeholder text
+	private JTextField createPlaceholderTextField(String placeholder, int x, int y, int width, int height) {
+		JTextField textField = new JTextField(placeholder);
+		textField.setBounds(x, y, width, height);
+		textField.addActionListener(this);
+		textField.setBackground(new Color(233, 233, 233));
+		textField.setFont(new Font("Arial", Font.PLAIN, 15));
+		// Set placeholder text color
+		textField.setForeground(Color.GRAY);
+		// Add focus listener to handle placeholder behavior
+		textField.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (textField.getText().equals(placeholder)) {
+					textField.setText("");
+					textField.setForeground(Color.BLACK); // Change text color on focus
+				}
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				if (textField.getText().isEmpty()) {
+					textField.setText(placeholder);
+					textField.setForeground(Color.GRAY); // Change text color on focus lost
+				}
+			}
+		});
+		return textField;
+	}
+
+	// create a list of userData objects to store the entered information
+	// (composition)
 	public static List<UserData> userDataList = new ArrayList<>();
 
-	
 	private void collectUserData() {
 		System.out.println("testing" + firstName);
 		userData = new UserData();
-	    userData.setUsername(usernameField.getText());
-	    userData.setPassword(passwordField.getText());
-	    userData.setFirstName(firstNameField.getText());
-	    userData.setLastName(lastNameField.getText());
+		userData.setUsername(usernameField.getText());
+		userData.setPassword(passwordField.getText());
+		userData.setFirstName(firstNameField.getText());
+		userData.setLastName(lastNameField.getText());
 
-	    userData.setAge(ageField.getText());
-	    userData.setMoney(moneyField.getText());
+		userData.setAge(ageField.getText());
+		userData.setMoney(moneyField.getText());
 
-	    RiskController riskController = new RiskController();
-	    riskController.determineUserRisk(SurveyPanel.buttonValues);
+		RiskController riskController = new RiskController();
+		riskController.determineUserRisk(SurveyPanel.buttonValues);
 
-	    userData.setRisk(riskController.getUserRisk());
+		userData.setRisk(riskController.getUserRisk());
 
-	    userDataList.add(userData);
+		userDataList.add(userData);
 
-	    // Testing: Print collected data
-	    System.out.println("First Name: " + userData.getFirstName());
-	    System.out.println("Last Name: " + userData.getLastName());
-	    System.out.println("Username: " + userData.getUsername());
-	    System.out.println("Password: " + userData.getPassword());
-	    System.out.println("Age: " + userData.getAge());
-	    System.out.println("Money: " + userData.getMoney());
-	    System.out.println("Risk: " + userData.getRisk());
+		// Testing: Print collected data
+		System.out.println("First Name: " + userData.getFirstName());
+		System.out.println("Last Name: " + userData.getLastName());
+		System.out.println("Username: " + userData.getUsername());
+		System.out.println("Password: " + userData.getPassword());
+		System.out.println("Age: " + userData.getAge());
+		System.out.println("Money: " + userData.getMoney());
+		System.out.println("Risk: " + userData.getRisk());
 	}
-
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fwdBtn) {
 			collectUserData();
-		
+
 			// .parseCSV("TickerSymbol.csv");
 			// calculateRiskAndPrintResults(); // Call the method to calculate risk
 
 			System.out.println(userData.getFirstName());
 			System.out.println("clicked");
 			LoginController.addUserToDatabase(userData);
-			
+
 		}
 	}
 

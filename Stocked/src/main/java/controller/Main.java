@@ -33,31 +33,30 @@ public class Main {
 
 		AlphaVantage.api().init(cfg);
 
-		AlphaVantage.api().timeSeries().daily().adjusted().forSymbol("USB-P-Q")
-				.outputSize(OutputSize.COMPACT).dataType(DataType.JSON)
-				.onSuccess(e -> handleSuccess((TimeSeriesResponse) e)).onFailure(e -> handleFailure((e))).fetch();
+		AlphaVantage.api().timeSeries().daily().adjusted().forSymbol("USB-P-Q").outputSize(OutputSize.COMPACT)
+				.dataType(DataType.JSON).onSuccess(e -> handleSuccess((TimeSeriesResponse) e))
+				.onFailure(e -> handleFailure((e))).fetch();
 
 	}
 
 	public void handleSuccess(TimeSeriesResponse response) {
 		try {
-			
-			
-	        // Convert TimeSeriesResponse to JSON string
-	        ObjectMapper objectMapper = new ObjectMapper();
-	        String jsonResponse = objectMapper.writeValueAsString(response);
 
-	        // Parse the JSON string using Jackson
-	        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+			// Convert TimeSeriesResponse to JSON string
+			ObjectMapper objectMapper = new ObjectMapper();
+			String jsonResponse = objectMapper.writeValueAsString(response);
 
-	        // Print the parsed JSON data
-	        System.out.println("Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+			// Parse the JSON string using Jackson
+			JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 
-	     
+			// Print the parsed JSON data
+			System.out.println(
+					"Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+
 			// create a dataset for the close and date data
 			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-			// 3xtract data from StockUnits and add to the dataset
+			// extract data from StockUnits and add to the dataset
 			for (StockUnit stockUnit : response.getStockUnits()) {
 				String date = stockUnit.getDate();
 				double close = stockUnit.getClose();

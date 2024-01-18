@@ -30,6 +30,9 @@ import java.util.HashMap;
 public class StockController {
 
 	private Map<String, Double> stockMap;
+	private double standardDeviation;
+	public String riskLevel;
+	
 
 	public static void main(String[] args) {
 		StockController processor = new StockController();
@@ -56,8 +59,9 @@ public class StockController {
 		}
 
 		// Round the values in the stockMap to 4 decimal places
-		// source: https://www.baeldung.com/java-round-decimal-number 
-		// and https://stackoverflow.com/questions/53947390/mapstring-integer-getting-rounded-int-percentage
+		// source: https://www.baeldung.com/java-round-decimal-number
+		// and
+		// https://stackoverflow.com/questions/53947390/mapstring-integer-getting-rounded-int-percentage
 		stockMap.replaceAll((key, value) -> value != null ? Math.round(value * 10000.0) / 10000.0 : null);
 	}
 
@@ -89,15 +93,16 @@ public class StockController {
 			e.printStackTrace();
 		}
 	}
-    /*source : https://www.businessinsider.com/personal-finance/how-to-find-standard-deviation
-     * calculates the standard deviation of a stock by 
-     * 1. calcualte the average return (the mean) for the time period. the returns
-     * are percentage values
-     * 2. finding the square of teh different between return and mean
-     * 3. add tehe returns to find the numerator
-     * 4. divide result by the number of data points minus 1
-     * 5. take the squareroot of this to fin the standard deviation
-     */
+
+	/*
+	 * source :
+	 * https://www.businessinsider.com/personal-finance/how-to-find-standard-
+	 * deviation calculates the standard deviation of a stock by 1. calcualte the
+	 * average return (the mean) for the time period. the returns are percentage
+	 * values 2. finding the square of teh different between return and mean 3. add
+	 * tehe returns to find the numerator 4. divide result by the number of data
+	 * points minus 1 5. take the squareroot of this to fin the standard deviation
+	 */
 	private double calculateStandardDeviation(List<StockUnit> stockUnits, int dataPoints) {
 		double[] returns = new double[dataPoints]; // Array to store daily returns
 		double sumReturns = 0.0;
@@ -122,17 +127,17 @@ public class StockController {
 
 		double result = sumSquaredDiff;
 		// (dataPoints -1) to account for errors if there is no previous data point
-		double standardDeviation = Math.sqrt(result / (dataPoints - 1));
+		standardDeviation = Math.sqrt(result / (dataPoints - 1));
 
 		// Determine and print the risk level based on ranges
-		String riskLevel = determineStockRiskUsingRanges(standardDeviation, mean);
+		riskLevel = determineStockRisk(standardDeviation);
 
-		System.out.println("Risk Level: " + riskLevel);
+		// System.out.println("Risk Level: " + riskLevel);
 
 		return standardDeviation;
 	}
 
-	private String determineStockRiskUsingRanges(double standardDeviation, double mean) {
+	private String determineStockRisk(double standardDeviation) {
 
 		if (standardDeviation <= 1.0) {
 			return "Very Low Risk";
@@ -140,11 +145,27 @@ public class StockController {
 			return "Low Risk";
 		} else if (standardDeviation <= 2) {
 			return "Moderate Risk";
-		} else if (standardDeviation <= 4) {
+		} else if (standardDeviation <= 5) {
 			return "High Risk";
 		} else {
 			return "Very High Risk";
 		}
+	}
+
+	public Map<String, Double> getStockMap() {
+		return stockMap;
+	}
+
+	public void setStockMap(Map<String, Double> stockMap) {
+		this.stockMap = stockMap;
+	}
+
+	public double getStandardDeviation() {
+		return standardDeviation;
+	}
+
+	public void setStandardDeviation(double standardDeviation) {
+		this.standardDeviation = standardDeviation;
 	}
 
 }

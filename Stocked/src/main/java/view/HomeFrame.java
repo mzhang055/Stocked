@@ -13,6 +13,7 @@ import javax.swing.JLayeredPane;
 public class HomeFrame extends JFrame implements ActionListener {
 
 	private JButton yahooBtn, bloombergBtn;
+	private NavigationBarPanel navPanel;
 
 	// constructor
 	public HomeFrame() {
@@ -31,6 +32,11 @@ public class HomeFrame extends JFrame implements ActionListener {
 		Dimension imageSize = new Dimension(backgroundImg.getIconWidth(), backgroundImg.getIconHeight());
 		imageLabel.setPreferredSize(imageSize);
 		
+		//Creates the navigation JPanel
+		navPanel = new NavigationBarPanel();
+		navPanel.setBounds(0, 0, 1440, 115);
+		imageLabel.add(navPanel);
+		
 		
 
 		// add the ouac button which leads to a browser link
@@ -39,7 +45,7 @@ public class HomeFrame extends JFrame implements ActionListener {
 		yahooBtn.setOpaque(false);
 		yahooBtn.setContentAreaFilled(false);
 		yahooBtn.setBorderPainted(false);
-		yahooBtn.setBounds(1060, 450, yahooIcon.getIconWidth(), yahooIcon.getIconHeight());
+		yahooBtn.setBounds(616, 356, yahooIcon.getIconWidth(), yahooIcon.getIconHeight());
 		yahooBtn.addActionListener(this);
 		layeredPane.add(yahooBtn, Integer.valueOf(1));
 
@@ -49,7 +55,7 @@ public class HomeFrame extends JFrame implements ActionListener {
 		bloombergBtn.setOpaque(false);
 		bloombergBtn.setContentAreaFilled(false);
 		bloombergBtn.setBorderPainted(false);
-		bloombergBtn.setBounds(1060, 600, bloomIcon.getIconWidth(), bloomIcon.getIconHeight());
+		bloombergBtn.setBounds(1000, 368, bloomIcon.getIconWidth(), bloomIcon.getIconHeight());
 		bloombergBtn.addActionListener(this);
 		layeredPane.add(bloombergBtn, Integer.valueOf(1));
 		
@@ -60,6 +66,10 @@ public class HomeFrame extends JFrame implements ActionListener {
 
 		//set visible
 		setVisible(true);
+	}
+	
+	public static void main(String[] args) {
+		new HomeFrame();
 	}
 
 	@Override
