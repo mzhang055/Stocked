@@ -9,11 +9,13 @@ import javax.swing.SwingUtilities;
 
 import model.UserData;
 import model.UserPortfolio;
+import view.HomeFrame;
 import view.RegisterFrame;
 
 public class LoginController {
 	
 	private static RegisterFrame register;
+	private static HomeFrame home;
 
 	// checks if a username already exists
 	public static boolean checkUsername(String username) {
@@ -73,12 +75,12 @@ public class LoginController {
 				    JOptionPane.showMessageDialog(null, "New User Added");
 
 				    // create a new instance of registerFrame
-				    register = new RegisterFrame();
+				    home = new HomeFrame();
 
 				    //dispose set up frame
 				    SwingUtilities.invokeLater(() -> {
-				        if (register != null) {
-				        	register.dispose();
+				        if (home != null) {
+				        	home.dispose();
 				        }
 				    });
 				}

@@ -22,6 +22,8 @@ public class RecommendationController {
 				System.out.println("Stock: " + stockSymbol + ", Standard Deviation: " + standardDeviation);
 			}
 
+			System.out.println();
+			System.out.println();
 			// Example: Determine risk based on stockMap values
 			for (Map.Entry<String, Double> entry : stockController.getStockMap().entrySet()) {
 				String stockSymbol = entry.getKey();
@@ -30,7 +32,8 @@ public class RecommendationController {
 				// Your logic to determine risk for each stock
 				String riskLevel = determineRiskLevel(standardDeviation);
 
-				// Print or use the risk level as needed
+				// Print risk levels for each stock (testing)
+	
 				System.out.println("Stock: " + stockSymbol + ", Risk Level: " + riskLevel);
 			}
 		} else {
@@ -51,21 +54,23 @@ public class RecommendationController {
 			return "Very High Risk";
 		}
 	}
-
 	public static void main(String[] args) {
-		RecommendationController recommendationController = new RecommendationController();
-		
-		try {
-			StockSymbolsController.getMostActiveStockSymbols();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	    RecommendationController recommendationController = new RecommendationController();
+	    
+	    try {
+	        StockSymbolsController.getMostActiveStockSymbols();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
 
-		
-		//StockController stockController = new StockController();
-		stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
-		recommendationController.determineStockRisk();
+	    // Assign the created StockController instance to the static variable
+	    RecommendationController.stockController = new StockController();
+	    RecommendationController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
+	    recommendationController.determineStockRisk();
+	    
+	    RiskController risk = new RiskController();
+	    System.out.println("users risk: "+ risk.getUserRisk());
 	}
+
 
 }

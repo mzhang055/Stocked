@@ -73,8 +73,5 @@ public class UserData {
 	public void setRisk(String risk) {
 		this.risk = risk;
 	}
-	
-	
-	
 
 }
