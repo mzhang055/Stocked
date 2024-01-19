@@ -255,7 +255,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 
 			//display charts of recommended stocks
 			ChartController chartController = new ChartController();
-			chartController.init(userData.getRisk());
+			chartController.generateCharts(userData.getRisk());
 			
 			LoginController.addUserToDatabase(userData);
 

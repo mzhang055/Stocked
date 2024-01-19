@@ -36,6 +36,8 @@ public class RecommendationPanel extends JPanel {
 
         return sectionPanel;
     }
+    
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

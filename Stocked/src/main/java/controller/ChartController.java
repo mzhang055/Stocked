@@ -1,5 +1,7 @@
 package controller;
 
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 
 import org.jfree.chart.ChartFactory;
@@ -39,26 +41,25 @@ public class ChartController {
 //		
 //	}
 
-	public void init(String userRisk) {
-		
-		recommend.determineMatchingStocks(userRisk);
+    public void generateCharts(String userRisk) {
+        // Get matching stocks from RecommendationController
+        ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
 
-	    // Print the matching stocks from RecommendationController
-	    System.out.println("Matching Stocks from RecommendationController:");
-	    for (String stockSymbol : recommend.getMatchingStocks()) {
-	        System.out.println(stockSymbol);
-	    }
+        // Iterate through matching stocks
+        for (String stockSymbol : matchingStocks) {
+            System.out.println("Generating chart for stock symbol: " + stockSymbol);
 
-		// initializer
-		Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
+            // Initialize AlphaVantage
+            Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
+            AlphaVantage.api().init(cfg);
 
-		AlphaVantage.api().init(cfg);
+            // Fetch time series data for the current stock symbol
+            AlphaVantage.api().timeSeries().daily().adjusted().forSymbol(stockSymbol).outputSize(OutputSize.COMPACT)
+                    .dataType(DataType.JSON).onSuccess(e -> handleSuccess((TimeSeriesResponse) e))
+                    .onFailure(e -> handleFailure((e))).fetch();
+        }
+    }
 
-		AlphaVantage.api().timeSeries().daily().adjusted().forSymbol("USB-P-Q").outputSize(OutputSize.COMPACT)
-				.dataType(DataType.JSON).onSuccess(e -> handleSuccess((TimeSeriesResponse) e))
-				.onFailure(e -> handleFailure((e))).fetch();
-
-	}
 
 	public void handleSuccess(TimeSeriesResponse response) {
 		try {
