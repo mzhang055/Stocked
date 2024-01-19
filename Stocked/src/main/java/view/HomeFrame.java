@@ -55,10 +55,6 @@ public class HomeFrame extends JFrame implements ActionListener {
 		//set visible
 		setVisible(true);
 	}
-	
-	public static void main(String[] args) {
-		new HomeFrame();
-	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
