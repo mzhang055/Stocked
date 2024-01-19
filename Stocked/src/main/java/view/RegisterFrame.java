@@ -196,7 +196,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	// (composition)
 	public static List<UserData> userDataList = new ArrayList<>();
 
-	private void collectUserData() {
+	public void collectUserData() {
 		System.out.println("testing" + firstName);
 		userData = new UserData();
 		userData.setUsername(usernameField.getText());
@@ -204,8 +204,9 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		userData.setFirstName(firstNameField.getText());
 		userData.setLastName(lastNameField.getText());
 
-		userData.setAge(ageField.getText());
-		userData.setMoney(moneyField.getText());
+	    userData.setAge(ageField.getText());
+	    userData.setMoney(moneyField.getText());
+
 
 		// collect risk information
 		RiskController riskController = new RiskController();
@@ -224,7 +225,8 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		System.out.println("Money: " + userData.getMoney());
 		System.out.println("Risk: " + userData.getRisk());
 	}
-
+	
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fwdBtn) {
@@ -256,6 +258,9 @@ public class RegisterFrame extends JFrame implements ActionListener {
 			// display charts of recommended stocks
 			ChartController chartController = new ChartController();
 			chartController.generateCharts(userData.getRisk());
+			
+			 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
+			earningsPanel.processSelectedStocks(userData.getMoney());
 
 			LoginController.addUserToDatabase(userData);
 

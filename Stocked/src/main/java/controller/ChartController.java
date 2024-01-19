@@ -51,6 +51,7 @@ public class ChartController {
 
 	private static ChartPanel chartPanel;
 	private EarningsPanel earnings;
+	private UserData userData;
 	public String xValue;
 	public double yValue;
 	public String seriesKey;
@@ -112,77 +113,77 @@ public class ChartController {
 			renderer.setSeriesStroke(i, new BasicStroke(5.0f)); // set thicknes
 		}
 
-		// display the chart in a JFrame
+		// display the chart 
 		chartPanel = new ChartPanel(chart);
-		chartPanel.addChartMouseListener(new CustomChartMouseListener(chartPanel));
+		//chartPanel.addChartMouseListener(new CustomChartMouseListener(chartPanel));
 	}
 
-	//source: https://www.jfree.org/forum/viewtopic.php?t=117858
-	private class CustomChartMouseListener implements ChartMouseListener {
-		private ChartPanel chartPanel;
-		private EarningsPanel earnings;
-		private ChartController chartController;
-
-		public CustomChartMouseListener(ChartPanel chartPanel) {
-			this.chartPanel = chartPanel;
-		}
-
-		@Override
-		public void chartMouseClicked(ChartMouseEvent event) {
-			earnings = EarningsPanel.getInstance(chartController);
-
-			JFreeChart chart = chartPanel.getChart();
-			CategoryPlot plot = (CategoryPlot) chart.getPlot();
-			Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
-
-			ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
-
-			if (entity instanceof CategoryItemEntity) {
-				CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
-
-				xValue = categoryEntity.getColumnKey().toString();
-				yValue = categoryEntity.getDataset().getValue(categoryEntity.getRowKey(), categoryEntity.getColumnKey())
-						.doubleValue();
-
-				// Store chart information in the variable
-				chartInfo = "Date: " + xValue + ", Closing Price: $" + yValue;
-
-				// Store the clicked date in the list
-				clickedDates.add(xValue);
-
-				setxValue(xValue);
-				setyValue(yValue);
-
-				System.out.println(chartInfo);
-				// Pass the information to displayXandY method
-				earnings.displayXandY(xValue, yValue, seriesKey);
-				
-			}
-			if (entity instanceof LegendItemEntity) {
-			    // Handle LegendItemEntity
-			    LegendItemEntity legendEntity = (LegendItemEntity) entity;
-
-			    // Retrieve information from the legend item
-			    Comparable seriesKeyComparable = legendEntity.getSeriesKey();
-
-			    if (seriesKeyComparable != null) {
-			        seriesKey = seriesKeyComparable.toString();
-			        setSeriesKey(seriesKey);
-			        System.out.println("Legend Clicked - Series: " + seriesKey);
-			    } else {
-			        System.out.println("Legend Clicked - Series key is null");
-			    }
-			}
-
-			
-
-		}
-
-		@Override
-		public void chartMouseMoved(ChartMouseEvent event) {
-			// Do nothing for mouse movement
-		}
-	}
+//	//source: https://www.jfree.org/forum/viewtopic.php?t=117858
+//	private class CustomChartMouseListener implements ChartMouseListener {
+//		private ChartPanel chartPanel;
+//		private EarningsPanel earnings;
+//		private ChartController chartController;
+//
+//		public CustomChartMouseListener(ChartPanel chartPanel) {
+//			this.chartPanel = chartPanel;
+//		}
+//
+//		@Override
+//		public void chartMouseClicked(ChartMouseEvent event) {
+//			earnings = EarningsPanel.getInstance(chartController, userData);
+//
+//			JFreeChart chart = chartPanel.getChart();
+//			CategoryPlot plot = (CategoryPlot) chart.getPlot();
+//			Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
+//
+//			ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
+//
+//			if (entity instanceof CategoryItemEntity) {
+//				CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
+//
+//				xValue = categoryEntity.getColumnKey().toString();
+//				yValue = categoryEntity.getDataset().getValue(categoryEntity.getRowKey(), categoryEntity.getColumnKey())
+//						.doubleValue();
+//
+//				// Store chart information in the variable
+//				chartInfo = "Date: " + xValue + ", Closing Price: $" + yValue;
+//
+//				// Store the clicked date in the list
+//				clickedDates.add(xValue);
+//
+//				setxValue(xValue);
+//				setyValue(yValue);
+//
+//				System.out.println(chartInfo);
+//				// Pass the information to displayXandY method
+//				earnings.displayXandY(xValue, yValue, seriesKey);
+//				
+//			}
+//			if (entity instanceof LegendItemEntity) {
+//			    // Handle LegendItemEntity
+//			    LegendItemEntity legendEntity = (LegendItemEntity) entity;
+//
+//			    // Retrieve information from the legend item
+//			    Comparable seriesKeyComparable = legendEntity.getSeriesKey();
+//
+//			    if (seriesKeyComparable != null) {
+//			        seriesKey = seriesKeyComparable.toString();
+//			        setSeriesKey(seriesKey);
+//			        System.out.println("Legend Clicked - Series: " + seriesKey);
+//			    } else {
+//			        System.out.println("Legend Clicked - Series key is null");
+//			    }
+//			}
+//
+////			
+////
+//		}
+//
+//		@Override
+//		public void chartMouseMoved(ChartMouseEvent event) {
+//			// Do nothing for mouse movement
+//		}
+//	}
 
 	public void handleSuccess(TimeSeriesResponse response, DefaultCategoryDataset combinedDataset, String stockSymbol) {
 		try {

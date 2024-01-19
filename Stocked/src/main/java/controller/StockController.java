@@ -1,5 +1,6 @@
 /*
  * This class retrieves historical stock data from the alpha vantage api,
+ * calculates the standard deviation of stocks, the user's investment gain/loss
  *
  * 
  */
@@ -34,11 +35,24 @@ public class StockController {
         processor.populateStockMap(StockSymbolsController.getStockMap(), 500);
         processor.printStockMap(processor.stockMap);
     }
+    
+    //this method sets up the requests to the stock api by giving it my api key
+    //this is reused through this class to make requests and get data
+    private TimeSeriesResponse makeAlphaVantageRequest(String symbol) {
+        Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
+        AlphaVantage.api().init(cfg);
+        return AlphaVantage.api().timeSeries()
+                .daily()
+                .forSymbol(symbol)
+                .outputSize(OutputSize.FULL)
+                .dataType(DataType.JSON)
+                .fetchSync();
+    }
 
     public void populateStockMap(Map<String, Double> symbols, int dataPoints) {
         stockMap = new HashMap<>();
         for (String symbol : symbols.keySet()) {
-            processStockData(symbol, dataPoints);
+        	determineStandardDeviation(symbol, dataPoints);
         }
         stockMap.replaceAll((key, value) -> value != null ? Math.round(value * 10000.0) / 10000.0 : null);
     }
@@ -50,7 +64,7 @@ public class StockController {
         }
     }
 
-    public void processStockData(String symbol, int dataPoints) {
+    public void determineStandardDeviation(String symbol, int dataPoints) {
   
         System.out.println("Processing data for symbol: " + symbol);
         try {
@@ -64,16 +78,67 @@ public class StockController {
         }
     }
 
-    private TimeSeriesResponse makeAlphaVantageRequest(String symbol) {
-        Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
-        AlphaVantage.api().init(cfg);
-        return AlphaVantage.api().timeSeries()
-                .daily()
-                .forSymbol(symbol)
-                .outputSize(OutputSize.FULL)
-                .dataType(DataType.JSON)
-                .fetchSync();
+
+    
+    //this method calculates the user's gain/loss if they were to invest at a selected stock on a specified day
+    public void processSpecificStock(String symbol, String date, String investment) {
+    	//parse the amount of money into a double
+    	double investmentAmount = 0.0;
+    	
+
+        // Check if investment is not null and not empty
+        if (investment != null && !investment.trim().isEmpty()) {
+            try {
+                investmentAmount = Double.parseDouble(investment);
+            } catch (NumberFormatException e) {
+                // Handle the case where the input is not a valid double
+                System.err.println("Error parsing investment amount.");
+                
+            }
+        }
+        System.out.println("Processing specific data for symbol: " + symbol + " on date: " + date);
+        try {
+            TimeSeriesResponse response = makeAlphaVantageRequest(symbol);
+            List<StockUnit> stockUnits = response.getStockUnits();
+
+            // Find the close price for the specified date
+            double closePrice = findClosePriceOnDate(stockUnits, date);
+
+            if (closePrice != -1) {
+                System.out.println("Close Price for " + symbol + " on date " + date + ": " + closePrice);
+
+                // Calculate the number of shares that could be bought with the investment amount
+                int numberOfShares = (int) (investmentAmount / closePrice);
+
+                // Calculate the current value of the investment
+                double currentValue = numberOfShares * closePrice;
+
+                // Calculate profit or loss
+                double profitLoss = currentValue - investmentAmount;
+
+                System.out.println("Number of Shares Purchased: " + numberOfShares);
+                System.out.println("Current Value of Investment: " + currentValue);
+                System.out.println("Profit/Loss: " + profitLoss);
+            } else {
+                System.out.println("Close price not found for the specified date.");
+            }
+        } catch (AlphaVantageException e) {
+            e.printStackTrace();
+        }
     }
+
+    //this is the helper method for the processSpecificStock method. it makes requests
+    // to the api and returns the closing price
+    private double findClosePriceOnDate(List<StockUnit> stockUnits, String targetDate) {
+        for (StockUnit stockUnit : stockUnits) {
+            String unitDate = stockUnit.getDate().toString();
+            if (unitDate.startsWith(targetDate)) {
+                return stockUnit.getClose();
+            }
+        }
+        return -1; // Return -1 if the date is not found
+    }
+
 
 
 	/*
