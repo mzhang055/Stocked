@@ -48,9 +48,10 @@ public class HomeFrame extends JFrame implements ActionListener {
 		imageLabel.add(navPanel);
 
 		// add earnings panel
-		EarningsPanel earningsPanel = new EarningsPanel(chartController);
+		EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController);
 
-		earningsPanel.setBounds(700, 100, 700, 700);
+
+		earningsPanel.setBounds(900, 100, 400, 700);
 
 		// create and add chart panel to RecommendationPanel
 		recommendPanel = new RecommendationPanel();

@@ -1,11 +1,13 @@
 package controller;
 
+import java.awt.BasicStroke;
 import java.awt.geom.Point2D;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.*;
 import org.jfree.chart.ChartFactory;
@@ -23,6 +25,7 @@ import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.axis.DateTickUnitType;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import com.crazzyghost.alphavantage.AlphaVantage;
@@ -52,6 +55,7 @@ public class ChartController {
 	public double yValue;
 	public String seriesKey;
 	public String chartInfo; 
+    private List<String> clickedDates = new ArrayList<>();
 
 	public ChartController() {
 		recommend = new RecommendationController();
@@ -64,51 +68,57 @@ public class ChartController {
 	}
 
 	public void generateCharts(String userRisk) {
-		// Get matching stocks from RecommendationController
-		ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
+	    // Get matching stocks from RecommendationController
+	    ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
 
-		// Create a combined dataset
-		DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
+	    // Create a combined dataset
+	    DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
 
-		// Iterate through matching stocks
-		for (String stockSymbol : matchingStocks) {
-			System.out.println("Generating chart for stock symbol: " + stockSymbol);
+	    // Iterate through matching stocks
+	    for (String stockSymbol : matchingStocks) {
+	        System.out.println("Generating chart for stock symbol: " + stockSymbol);
 
-			// Initialize AlphaVantage
-			Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
-			AlphaVantage.api().init(cfg);
+	        // Initialize AlphaVantage
+	        Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
+	        AlphaVantage.api().init(cfg);
 
-			// Fetch time series data for the current stock symbol
-			AlphaVantage.api().timeSeries().daily().adjusted().forSymbol(stockSymbol).outputSize(OutputSize.COMPACT)
-					.dataType(DataType.JSON)
-					.onSuccess(e -> handleSuccess((TimeSeriesResponse) e, combinedDataset, stockSymbol))
-					.onFailure(e -> handleFailure((e))).fetch();
-		}
+	        // Fetch time series data for the current stock symbol
+	        AlphaVantage.api().timeSeries().daily().adjusted().forSymbol(stockSymbol).outputSize(OutputSize.COMPACT)
+	                .dataType(DataType.JSON)
+	                .onSuccess(e -> handleSuccess((TimeSeriesResponse) e, combinedDataset, stockSymbol))
+	                .onFailure(e -> handleFailure((e))).fetch();
+	    }
 
-		// Create a line chart with the combined dataset
-		JFreeChart chart = ChartFactory.createLineChart("Your Recommended Stocks", "Date", // X-axis label
-				"Close", // Y-axis label
-				combinedDataset);
+	    // Create a line chart with the combined dataset
+	    JFreeChart chart = ChartFactory.createLineChart("Your Recommended Stocks", "Date", "Close", combinedDataset);
 
-		// use category plot to adjust date labels
-		CategoryPlot plot = chart.getCategoryPlot();
-		CategoryAxis domainAxis = plot.getDomainAxis();
-		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+	    // use category plot to adjust date labels
+	    CategoryPlot plot = chart.getCategoryPlot();
+	    CategoryAxis domainAxis = plot.getDomainAxis();
+	    domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
 
-		// Use DateAxis to allow displaying actual dates
-		DateAxis dateAxis = new DateAxis("Date");
-		dateAxis.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd"));
+	    // Use DateAxis to allow displaying actual dates
+	    DateAxis dateAxis = new DateAxis("Date");
+	    dateAxis.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd"));
 
-		// Set the tick unit to two days
-		DateTickUnit dateTickUnit = new DateTickUnit(DateTickUnitType.DAY, 2, new SimpleDateFormat("yyyy-MM-dd"));
-		dateAxis.setTickUnit(dateTickUnit);
+	    // Set the tick unit to two days
+	    DateTickUnit dateTickUnit = new DateTickUnit(DateTickUnitType.DAY, 2, new SimpleDateFormat("yyyy-MM-dd"));
+	    dateAxis.setTickUnit(dateTickUnit);
 
-		// display the chart in a JFrame
-		chartPanel = new ChartPanel(chart);
-		chartPanel.addChartMouseListener(new CustomChartMouseListener(chartPanel));
+	    // Set line thickness for all series
+	    LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+	    int seriesCount = combinedDataset.getRowCount();
+	    for (int i = 0; i < seriesCount; i++) {
+	        renderer.setSeriesStroke(i, new BasicStroke(5.0f)); //set thicknes
+	    }
 
+	    // display the chart in a JFrame
+	    chartPanel = new ChartPanel(chart);
+	    chartPanel.addChartMouseListener(new CustomChartMouseListener(chartPanel));
 	}
 
+	
+	
 	private class CustomChartMouseListener implements ChartMouseListener {
 		private ChartPanel chartPanel;
 		  private EarningsPanel earnings;
@@ -118,28 +128,35 @@ public class ChartController {
 			this.chartPanel = chartPanel;
 		}
 
-		@Override
-		public void chartMouseClicked(ChartMouseEvent event) {
-			earnings = new EarningsPanel(chartController);
-		    JFreeChart chart = chartPanel.getChart();
-		    CategoryPlot plot = (CategoryPlot) chart.getPlot();
-		    Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
+		 @Override
+	        public void chartMouseClicked(ChartMouseEvent event) {
+			 earnings = EarningsPanel.getInstance(chartController);
 
-		    ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
+	            JFreeChart chart = chartPanel.getChart();
+	            CategoryPlot plot = (CategoryPlot) chart.getPlot();
+	            Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
 
-		    if (entity instanceof CategoryItemEntity) {
-		        CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
+	            ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
 
-		        xValue = categoryEntity.getColumnKey().toString(); // Assuming X-axis is a String (category)
-		        yValue = categoryEntity.getDataset().getValue(categoryEntity.getRowKey(), categoryEntity.getColumnKey())
-		                .doubleValue();
+	            if (entity instanceof CategoryItemEntity) {
+	                CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
 
-		        // Store chart information in the variable
-		        chartInfo = "Date: " + xValue + ", Closing Price: $" + yValue;
+	                xValue = categoryEntity.getColumnKey().toString();
+	                yValue = categoryEntity.getDataset().getValue(categoryEntity.getRowKey(),
+	                        categoryEntity.getColumnKey()).doubleValue();
 
-		        System.out.println(chartInfo);
-		        earnings.displayXandY(xValue, yValue);
-		    }
+	                // Store chart information in the variable
+	                chartInfo = "Date: " + xValue + ", Closing Price: $" + yValue;
+
+	                // Store the clicked date in the list
+	                clickedDates.add(xValue);
+
+	                setxValue(xValue);
+	                setyValue(yValue);
+
+	                System.out.println(chartInfo);
+	                earnings.displayXandY(xValue, yValue);
+	            }
 		    if (entity instanceof LegendItemEntity) {
 		        // Handle LegendItemEntity
 		        LegendItemEntity legendEntity = (LegendItemEntity) entity;
@@ -244,5 +261,13 @@ public class ChartController {
 	public String getChartInfo() {
 	    return chartInfo;
 	}
+	
+	   // Method to get the latest clicked date
+    public String getLatestClickedDate() {
+        if (!clickedDates.isEmpty()) {
+            return clickedDates.get(clickedDates.size() - 1);
+        }
+        return null;
+    }
 
 }
