@@ -30,7 +30,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	public static UserData userData;
 	public static SurveyPanel surveyPanel;
 	public static RiskController risk;
-	
+
 	public HomeFrame home;
 
 	public RegisterFrame() {
@@ -77,13 +77,13 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		passwordField.addActionListener(this);
 		passwordField.setBackground(color);
 		passwordField.setFont(font);
-		
+
 		ageField = new JTextField();
 		ageField.setBounds(100, 400, 500, 80);
 		ageField.addActionListener(this);
 		ageField.setBackground(color);
 		ageField.setFont(font);
-	
+
 		moneyField = new JTextField();
 		moneyField.setBounds(745, 400, 500, 80);
 		moneyField.addActionListener(this);
@@ -105,15 +105,14 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		layeredPane.add(passwordField, Integer.valueOf(1));
 		layeredPane.add(ageField, Integer.valueOf(1));
 		layeredPane.add(moneyField, Integer.valueOf(1));
-		
 
-		//create and add survey panel (questions) to frame
+		// create and add survey panel (questions) to frame
 		surveyPanel = new SurveyPanel();
 		surveyPanel.setBounds(0, 350, SurveyPanel.getQuestionSizeX(), SurveyPanel.getQuestionSizeY());
 		layeredPane.add(surveyPanel, Integer.valueOf(2));
 		surveyPanel.setVisible(true);
 
-		//add the forwards button
+		// add the forwards button
 		ImageIcon confirmIcon = new ImageIcon("images/finishBtn.png");
 		fwdBtn = new JButton(confirmIcon);
 		fwdBtn.setOpaque(false);
@@ -208,7 +207,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		userData.setAge(ageField.getText());
 		userData.setMoney(moneyField.getText());
 
-		//collect risk information
+		// collect risk information
 		RiskController riskController = new RiskController();
 		riskController.determineUserRisk(SurveyPanel.buttonValues);
 
@@ -229,42 +228,42 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fwdBtn) {
-	        collectUserData();
+			collectUserData();
 
-	        RiskController risk = new RiskController();
-	        RecommendationController recommend = new RecommendationController();
+			RiskController risk = new RiskController();
+			RecommendationController recommend = new RecommendationController();
 
-	        try {
-	            StockSymbolsController.getMostActiveStockSymbols();
-	        } catch (IOException i) {
-	            i.printStackTrace();
-	        }
+			try {
+				StockSymbolsController.getMostActiveStockSymbols();
+			} catch (IOException i) {
+				i.printStackTrace();
+			}
 
-	        RiskController.stockController = new StockController();
-	        RiskController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
-	        risk.determineStockRisk();
+			RiskController.stockController = new StockController();
+			RiskController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
+			risk.determineStockRisk();
 
-	       // RiskController risk = new RiskController();
-	        // Ensure userData is not null
-	        if (userData != null) {
-	            // Check if risk determination is synchronous
-	            System.out.println("User's risk: " + userData.getRisk());
-	        }
+			// RiskController risk = new RiskController();
+			// Ensure userData is not null
+			if (userData != null) {
+				// Check if risk determination is synchronous
+				System.out.println("User's risk: " + userData.getRisk());
+			}
 
-	        //determine the user's matching stocks
-	        recommend.determineMatchingStocks(userData.getRisk());
-	       
-	        ChartController chartController = new ChartController();
-	
-	        
-	        
-	        LoginController.addUserToDatabase(userData);
+			// determine the user's matching stocks
+			recommend.determineMatchingStocks(userData.getRisk());
 
-	        SwingUtilities.invokeLater(() -> {
-	            home = new HomeFrame();
-	            dispose();
-	        });
-	    }
+			//display charts of recommended stocks
+			ChartController chartController = new ChartController();
+			chartController.init(userData.getRisk());
+			
+			LoginController.addUserToDatabase(userData);
+
+			SwingUtilities.invokeLater(() -> {
+				home = new HomeFrame();
+				dispose();
+			});
+		}
 	}
 
 //	// Method to calculate risk using RiskController and print results
