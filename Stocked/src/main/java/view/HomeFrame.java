@@ -12,7 +12,7 @@ import javax.swing.JLayeredPane;
 
 public class HomeFrame extends JFrame implements ActionListener {
 
-	private JButton yahooBtn, bloombergBtn;
+
 	private NavigationBarPanel navPanel;
 	private RecommendationPanel recommendPanel;
 
@@ -41,7 +41,7 @@ public class HomeFrame extends JFrame implements ActionListener {
 
 		//create and add survey panel (questions) to frame
 		recommendPanel = new RecommendationPanel();
-		recommendPanel.setBounds(0, 300, 1440, 500);
+		recommendPanel.setBounds(0, 100, 1440, 700);
 		
 		recommendPanel.setVisible(true);
 

@@ -1,9 +1,12 @@
 package controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 
-import javax.swing.JFrame;
-
+import javax.swing.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -23,47 +26,66 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import model.UserData;
+import view.HomeFrame;
 
+/**
+ * 
+ */
 public class ChartController {
-	
+
 	private static RecommendationController recommend;
 	private static UserData userData;
-   
+
+	private static ChartPanel chartPanel;
+
 	public ChartController() {
-        recommend = new RecommendationController();
-        userData = new UserData();
-    }
-//
-//	public static void main(String[] args) {
-//		ChartController main = new ChartController();
-//
-//		main.init();
-//		
-//	}
+		recommend = new RecommendationController();
+		userData = new UserData();
+	}
 
-    public void generateCharts(String userRisk) {
-        // Get matching stocks from RecommendationController
-        ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
+	public void generateCharts(String userRisk) {
+		// Get matching stocks from RecommendationController
+		ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
 
-        // Iterate through matching stocks
-        for (String stockSymbol : matchingStocks) {
-            System.out.println("Generating chart for stock symbol: " + stockSymbol);
+		// Create a combined dataset
+		DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
 
-            // Initialize AlphaVantage
-            Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
-            AlphaVantage.api().init(cfg);
+		// Iterate through matching stocks
+		for (String stockSymbol : matchingStocks) {
+			System.out.println("Generating chart for stock symbol: " + stockSymbol);
 
-            // Fetch time series data for the current stock symbol
-            AlphaVantage.api().timeSeries().daily().adjusted().forSymbol(stockSymbol).outputSize(OutputSize.COMPACT)
-                    .dataType(DataType.JSON).onSuccess(e -> handleSuccess((TimeSeriesResponse) e))
-                    .onFailure(e -> handleFailure((e))).fetch();
-        }
-    }
+			// Initialize AlphaVantage
+			Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
+			AlphaVantage.api().init(cfg);
 
+			// Fetch time series data for the current stock symbol
+			AlphaVantage.api().timeSeries().daily().adjusted().forSymbol(stockSymbol).outputSize(OutputSize.COMPACT)
+					.dataType(DataType.JSON).onSuccess(e -> handleSuccess((TimeSeriesResponse) e, combinedDataset, stockSymbol))
+					.onFailure(e -> handleFailure((e))).fetch();
+		}
 
-	public void handleSuccess(TimeSeriesResponse response) {
+		// Create a line chart with the combined dataset
+		JFreeChart chart = ChartFactory.createLineChart("Your Recommended Stocks",
+				"Date", // X-axis label
+				"Close", // Y-axis label
+				combinedDataset);
+
+		// use category plot to adjust date labels
+		CategoryPlot plot = chart.getCategoryPlot();
+		CategoryAxis domainAxis = plot.getDomainAxis();
+		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+
+		// display the chart in a JFrame
+		chartPanel = new ChartPanel(chart);
+//		home = new JFrame("Close Prices Chart");
+//		home.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		home.getContentPane().add(chartPanel);
+//		home.pack();
+//		home.setVisible(true);
+	}
+
+	public void handleSuccess(TimeSeriesResponse response, DefaultCategoryDataset combinedDataset, String stockSymbol) {
 		try {
-
 			// Convert TimeSeriesResponse to JSON string
 			ObjectMapper objectMapper = new ObjectMapper();
 			String jsonResponse = objectMapper.writeValueAsString(response);
@@ -75,36 +97,26 @@ public class ChartController {
 			System.out.println(
 					"Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
 
-			// create a dataset for the close and date data
-			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+	        // extract data from StockUnits and add to the combined dataset
+            ArrayList<StockUnit> sortedStockUnits = new ArrayList<>(response.getStockUnits());
+            Collections.sort(sortedStockUnits, (unit1, unit2) -> unit1.getDate().compareTo(unit2.getDate()));
 
-			// extract data from StockUnits and add to the dataset
-			for (StockUnit stockUnit : response.getStockUnits()) {
-				String date = stockUnit.getDate();
-				double close = stockUnit.getClose();
-				dataset.addValue(close, "Close", date);
-			}
+            for (StockUnit stockUnit : sortedStockUnits) {
+                String date = stockUnit.getDate();
+                double close = stockUnit.getClose();
+                
+                // Format date as year and week
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-ww");
 
-			// create a line chart
-			JFreeChart chart = ChartFactory.createLineChart("Close Prices Over Time", // Chart title
-					"Date", // X-axis label
-					"Close", // Y-axis label
-					dataset);
+                Date parsedDate = inputFormat.parse(date);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(parsedDate);
+                String formattedDate = outputFormat.format(parsedDate);
 
-			// use category plot to adjust date labels
-			CategoryPlot plot = chart.getCategoryPlot();
-			CategoryAxis domainAxis = plot.getDomainAxis();
-			domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-
-			// display the chart in a JFrame
-			ChartPanel chartPanel = new ChartPanel(chart);
-			JFrame frame = new JFrame("Close Prices Chart");
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.getContentPane().add(chartPanel);
-			frame.pack();
-			frame.setVisible(true);
-
-		} catch (Exception e) {
+                combinedDataset.addValue(close, stockSymbol, formattedDate);
+            }
+		}catch (Exception e) {
 			handleFailure(new AlphaVantageException("Failed to create chart."));
 		}
 	}
@@ -113,4 +125,14 @@ public class ChartController {
 		System.out.println("Doesn't function");
 		System.out.println(error.getMessage());
 	}
+
+	public static ChartPanel getChartPanel() {
+		return chartPanel;
+	}
+
+	public static void setChartPanel(ChartPanel chartPanel) {
+		ChartController.chartPanel = chartPanel;
+	}
+	
+	
 }

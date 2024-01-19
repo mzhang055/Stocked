@@ -4,23 +4,31 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
+import controller.ChartController;
+
 public class RecommendationPanel extends JPanel {
 	
 	private String image = "images/widget.png";
 
     public RecommendationPanel() {
-        setLayout(new GridLayout(1, 3)); // Use GridLayout with 1 row and 3 columns
+        setLayout(new BorderLayout());
+
+        // Create panels for the sections
+        JPanel largerPanel = ChartController.getChartPanel();
+        JPanel smallerPanel = new JPanel();
+
+        // Set background colors for clarity
+        largerPanel.setBackground(Color.BLUE);
+        smallerPanel.setBackground(Color.RED);
+
+        // Add panels to the frame
+        add(largerPanel, BorderLayout.WEST);  // Larger panel to the west
+        add(smallerPanel, BorderLayout.CENTER);  // Smaller panel to the center
+
+        // Set the preferred size for the larger panel (adjust this based on your requirements)
+        largerPanel.setPreferredSize(new Dimension(1100, 0));
+
         
-
-        // Create sub panels for each section with background image
-        JPanel westPanel = createSectionPanel();
-        JPanel centerPanel = createSectionPanel();
-        JPanel eastPanel = createSectionPanel();
-
-        // Add sub panel to main panel with GridLayout
-        add(westPanel);
-        add(centerPanel);
-        add(eastPanel);
     }
 
     private JPanel createSectionPanel() {
@@ -37,18 +45,5 @@ public class RecommendationPanel extends JPanel {
         return sectionPanel;
     }
     
-    
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Recommendation Frame");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1440, 900);
-            RecommendationPanel recommendationPanel = new RecommendationPanel();
-            frame.add(recommendationPanel);
-
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-        });
-    }
+   
 }

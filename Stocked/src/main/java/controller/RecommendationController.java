@@ -10,7 +10,21 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class RecommendationController {
+    private static RecommendationController instance;
 
+    
+    //ensure it is a singleton
+    public RecommendationController() {
+        // private constructor to prevent instantiation
+    }
+
+    
+    public static RecommendationController getInstance() {
+        if (instance == null) {
+            instance = new RecommendationController();
+        }
+        return instance;
+    }
 	public ArrayList<String> matchingStocks = new ArrayList<String>();
 
 	public ArrayList<String> determineMatchingStocks(String userRisk) {
@@ -29,7 +43,7 @@ public class RecommendationController {
 	                // Compare stock risk level with user risk level
 	                if (userRisk.equalsIgnoreCase(riskLevel)) {
 	                    // Store matching stocks in the ArrayList, but limit to the first 3
-	                    if (count < 3) {
+	                    if (count < 10) {
 	                        matchingStocks.add(stockSymbol);
 	                        count++;
 	                    }
