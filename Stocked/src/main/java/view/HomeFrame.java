@@ -1,20 +1,29 @@
 package view;
 
-import java.awt.Dimension;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.time.Second;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+
+import controller.ChartController;
+
+import org.jdesktop.swingx.JXDatePicker;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
+import java.util.Calendar;
+import java.util.Date;
 
 public class HomeFrame extends JFrame implements ActionListener {
 
-
 	private NavigationBarPanel navPanel;
 	private RecommendationPanel recommendPanel;
+
+	private ChartController chartController;
 
 	// constructor
 	public HomeFrame() {
@@ -32,34 +41,34 @@ public class HomeFrame extends JFrame implements ActionListener {
 		imageLabel.setBounds(0, 0, backgroundImg.getIconWidth(), backgroundImg.getIconHeight());
 		Dimension imageSize = new Dimension(backgroundImg.getIconWidth(), backgroundImg.getIconHeight());
 		imageLabel.setPreferredSize(imageSize);
-		
-		//Creates the navigation JPanel
+
+		// Creates the navigation JPanel
 		navPanel = new NavigationBarPanel();
 		navPanel.setBounds(0, 0, 1440, 115);
 		imageLabel.add(navPanel);
-		
 
-		//create and add survey panel (questions) to frame
+		// add earnings panel
+		EarningsPanel earningsPanel = new EarningsPanel(chartController);
+
+		earningsPanel.setBounds(700, 100, 700, 700);
+
+		// create and add chart panel to RecommendationPanel
 		recommendPanel = new RecommendationPanel();
-		recommendPanel.setBounds(0, 100, 1440, 700);
-		
-		recommendPanel.setVisible(true);
-
-
+		recommendPanel.setBounds(0, 100, 900, 700);
 
 		// add background image to the last layer
 		layeredPane.add(imageLabel, Integer.valueOf(0));
-		layeredPane.add(recommendPanel, Integer.valueOf(2));
+		layeredPane.add(recommendPanel, Integer.valueOf(1));
+		layeredPane.add(earningsPanel, Integer.valueOf(1));
+
 		getContentPane().add(layeredPane);
 
-		//set visible
+		// set visible
 		setVisible(true);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-
 	}
-
 }
