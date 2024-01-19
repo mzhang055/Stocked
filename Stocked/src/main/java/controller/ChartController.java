@@ -54,8 +54,8 @@ public class ChartController {
 	public String xValue;
 	public double yValue;
 	public String seriesKey;
-	public String chartInfo; 
-    private List<String> clickedDates = new ArrayList<>();
+	public String chartInfo;
+	private List<String> clickedDates = new ArrayList<>();
 
 	public ChartController() {
 		recommend = new RecommendationController();
@@ -68,106 +68,114 @@ public class ChartController {
 	}
 
 	public void generateCharts(String userRisk) {
-	    // Get matching stocks from RecommendationController
-	    ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
+		// Get matching stocks from RecommendationController
+		ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
 
-	    // Create a combined dataset
-	    DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
+		// Create a combined dataset
+		DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
 
-	    // Iterate through matching stocks
-	    for (String stockSymbol : matchingStocks) {
-	        System.out.println("Generating chart for stock symbol: " + stockSymbol);
+		// Iterate through matching stocks
+		for (String stockSymbol : matchingStocks) {
+			System.out.println("Generating chart for stock symbol: " + stockSymbol);
 
-	        // Initialize AlphaVantage
-	        Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
-	        AlphaVantage.api().init(cfg);
+			// Initialize AlphaVantage
+			Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
+			AlphaVantage.api().init(cfg);
 
-	        // Fetch time series data for the current stock symbol
-	        AlphaVantage.api().timeSeries().daily().adjusted().forSymbol(stockSymbol).outputSize(OutputSize.COMPACT)
-	                .dataType(DataType.JSON)
-	                .onSuccess(e -> handleSuccess((TimeSeriesResponse) e, combinedDataset, stockSymbol))
-	                .onFailure(e -> handleFailure((e))).fetch();
-	    }
+			// Fetch time series data for the current stock symbol
+			AlphaVantage.api().timeSeries().daily().adjusted().forSymbol(stockSymbol).outputSize(OutputSize.COMPACT)
+					.dataType(DataType.JSON)
+					.onSuccess(e -> handleSuccess((TimeSeriesResponse) e, combinedDataset, stockSymbol))
+					.onFailure(e -> handleFailure((e))).fetch();
+		}
 
-	    // Create a line chart with the combined dataset
-	    JFreeChart chart = ChartFactory.createLineChart("Your Recommended Stocks", "Date", "Close", combinedDataset);
+		// Create a line chart with the combined dataset
+		JFreeChart chart = ChartFactory.createLineChart("Your Recommended Stocks", "Date", "Close", combinedDataset);
 
-	    // use category plot to adjust date labels
-	    CategoryPlot plot = chart.getCategoryPlot();
-	    CategoryAxis domainAxis = plot.getDomainAxis();
-	    domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+		// use category plot to adjust date labels
+		CategoryPlot plot = chart.getCategoryPlot();
+		CategoryAxis domainAxis = plot.getDomainAxis();
+		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
 
-	    // Use DateAxis to allow displaying actual dates
-	    DateAxis dateAxis = new DateAxis("Date");
-	    dateAxis.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd"));
+		// Use DateAxis to allow displaying actual dates
+		DateAxis dateAxis = new DateAxis("Date");
+		dateAxis.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd"));
 
-	    // Set the tick unit to two days
-	    DateTickUnit dateTickUnit = new DateTickUnit(DateTickUnitType.DAY, 2, new SimpleDateFormat("yyyy-MM-dd"));
-	    dateAxis.setTickUnit(dateTickUnit);
+		// Set the tick unit to two days
+		DateTickUnit dateTickUnit = new DateTickUnit(DateTickUnitType.DAY, 2, new SimpleDateFormat("yyyy-MM-dd"));
+		dateAxis.setTickUnit(dateTickUnit);
 
-	    // Set line thickness for all series
-	    LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-	    int seriesCount = combinedDataset.getRowCount();
-	    for (int i = 0; i < seriesCount; i++) {
-	        renderer.setSeriesStroke(i, new BasicStroke(5.0f)); //set thicknes
-	    }
+		// Set line thickness for all series
+		LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+		int seriesCount = combinedDataset.getRowCount();
+		for (int i = 0; i < seriesCount; i++) {
+			renderer.setSeriesStroke(i, new BasicStroke(5.0f)); // set thicknes
+		}
 
-	    // display the chart in a JFrame
-	    chartPanel = new ChartPanel(chart);
-	    chartPanel.addChartMouseListener(new CustomChartMouseListener(chartPanel));
+		// display the chart in a JFrame
+		chartPanel = new ChartPanel(chart);
+		chartPanel.addChartMouseListener(new CustomChartMouseListener(chartPanel));
 	}
 
-	
-	
+	//source: https://www.jfree.org/forum/viewtopic.php?t=117858
 	private class CustomChartMouseListener implements ChartMouseListener {
 		private ChartPanel chartPanel;
-		  private EarningsPanel earnings;
-		  private ChartController chartController;
+		private EarningsPanel earnings;
+		private ChartController chartController;
 
 		public CustomChartMouseListener(ChartPanel chartPanel) {
 			this.chartPanel = chartPanel;
 		}
 
-		 @Override
-	        public void chartMouseClicked(ChartMouseEvent event) {
-			 earnings = EarningsPanel.getInstance(chartController);
+		@Override
+		public void chartMouseClicked(ChartMouseEvent event) {
+			earnings = EarningsPanel.getInstance(chartController);
 
-	            JFreeChart chart = chartPanel.getChart();
-	            CategoryPlot plot = (CategoryPlot) chart.getPlot();
-	            Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
+			JFreeChart chart = chartPanel.getChart();
+			CategoryPlot plot = (CategoryPlot) chart.getPlot();
+			Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
 
-	            ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
+			ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
 
-	            if (entity instanceof CategoryItemEntity) {
-	                CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
+			if (entity instanceof CategoryItemEntity) {
+				CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
 
-	                xValue = categoryEntity.getColumnKey().toString();
-	                yValue = categoryEntity.getDataset().getValue(categoryEntity.getRowKey(),
-	                        categoryEntity.getColumnKey()).doubleValue();
+				xValue = categoryEntity.getColumnKey().toString();
+				yValue = categoryEntity.getDataset().getValue(categoryEntity.getRowKey(), categoryEntity.getColumnKey())
+						.doubleValue();
 
-	                // Store chart information in the variable
-	                chartInfo = "Date: " + xValue + ", Closing Price: $" + yValue;
+				// Store chart information in the variable
+				chartInfo = "Date: " + xValue + ", Closing Price: $" + yValue;
 
-	                // Store the clicked date in the list
-	                clickedDates.add(xValue);
+				// Store the clicked date in the list
+				clickedDates.add(xValue);
 
-	                setxValue(xValue);
-	                setyValue(yValue);
+				setxValue(xValue);
+				setyValue(yValue);
 
-	                System.out.println(chartInfo);
-	                earnings.displayXandY(xValue, yValue);
-	            }
-		    if (entity instanceof LegendItemEntity) {
-		        // Handle LegendItemEntity
-		        LegendItemEntity legendEntity = (LegendItemEntity) entity;
+				System.out.println(chartInfo);
+				// Pass the information to displayXandY method
+				earnings.displayXandY(xValue, yValue, seriesKey);
+				
+			}
+			if (entity instanceof LegendItemEntity) {
+			    // Handle LegendItemEntity
+			    LegendItemEntity legendEntity = (LegendItemEntity) entity;
 
-		        // Retrieve information from the legend item
-		        seriesKey = legendEntity.getSeriesKey().toString();
-		        boolean seriesVisible = chart.getXYPlot().getDataset()
-		                .getSeriesKey(chart.getXYPlot().getDataset().indexOf(legendEntity.getSeriesKey())) != null;
+			    // Retrieve information from the legend item
+			    Comparable seriesKeyComparable = legendEntity.getSeriesKey();
 
-		        System.out.println("Legend Clicked - Series: " + seriesKey + ", Visible: " + seriesVisible);
-		    }
+			    if (seriesKeyComparable != null) {
+			        seriesKey = seriesKeyComparable.toString();
+			        setSeriesKey(seriesKey);
+			        System.out.println("Legend Clicked - Series: " + seriesKey);
+			    } else {
+			        System.out.println("Legend Clicked - Series key is null");
+			    }
+			}
+
+			
+
 		}
 
 		@Override
@@ -257,17 +265,17 @@ public class ChartController {
 	public void setSeriesKey(String seriesKey) {
 		this.seriesKey = seriesKey;
 	}
-	
+
 	public String getChartInfo() {
-	    return chartInfo;
+		return chartInfo;
 	}
-	
-	   // Method to get the latest clicked date
-    public String getLatestClickedDate() {
-        if (!clickedDates.isEmpty()) {
-            return clickedDates.get(clickedDates.size() - 1);
-        }
-        return null;
-    }
+
+	// Method to get the latest clicked date
+	public String getLatestClickedDate() {
+		if (!clickedDates.isEmpty()) {
+			return clickedDates.get(clickedDates.size() - 1);
+		}
+		return null;
+	}
 
 }

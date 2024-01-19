@@ -14,81 +14,67 @@ import com.crazzyghost.alphavantage.parameters.OutputSize;
 import com.crazzyghost.alphavantage.timeseries.response.StockUnit;
 import com.crazzyghost.alphavantage.timeseries.response.TimeSeriesResponse;
 
-import model.Stock;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 public class StockController {
 
-	private Map<String, Double> stockMap;
-	private double standardDeviation;
-	public String riskLevel;
-	
+    private Map<String, Double> stockMap;
+    private double standardDeviation;
+    public String riskLevel;
 
-	public static void main(String[] args) {
-		StockController processor = new StockController();
+    public static void main(String[] args) {
+        StockController processor = new StockController();
+        try {
+            StockSymbolsController.getMostActiveStockSymbols();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        processor.populateStockMap(StockSymbolsController.getStockMap(), 500);
+        processor.printStockMap(processor.stockMap);
+    }
 
-		// fetch most active stock symbols and store in the stockMap field
-		try {
-			StockSymbolsController.getMostActiveStockSymbols();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// Populate the stockMap with standard deviations
-		processor.populateStockMap(StockSymbolsController.getStockMap(), 500);
+    public void populateStockMap(Map<String, Double> symbols, int dataPoints) {
+        stockMap = new HashMap<>();
+        for (String symbol : symbols.keySet()) {
+            processStockData(symbol, dataPoints);
+        }
+        stockMap.replaceAll((key, value) -> value != null ? Math.round(value * 10000.0) / 10000.0 : null);
+    }
 
-		// Print the updated stockMap
-		processor.printStockMap(processor.stockMap);
-	}
+    public void printStockMap(Map<String, Double> stockMap) {
+        System.out.println("\nPrinting Stock Map:");
+        for (Map.Entry<String, Double> entry : stockMap.entrySet()) {
+            System.out.println("Stock Symbol: " + entry.getKey() + ", Value: " + entry.getValue());
+        }
+    }
 
-	public void populateStockMap(Map<String, Double> symbols, int dataPoints) {
-		stockMap = new HashMap<>();
+    public void processStockData(String symbol, int dataPoints) {
+  
+        System.out.println("Processing data for symbol: " + symbol);
+        try {
+            TimeSeriesResponse response = makeAlphaVantageRequest(symbol);
+            List<StockUnit> stockUnits = response.getStockUnits();
+            double standardDeviation = calculateStandardDeviation(stockUnits, dataPoints);
+            stockMap.put(symbol, standardDeviation);
+            System.out.println("Standard Deviation for " + symbol + ": " + standardDeviation);
+        } catch (AlphaVantageException e) {
+            e.printStackTrace();
+        }
+    }
 
-		for (String symbol : symbols.keySet()) {
-			processStockData(symbol, dataPoints);
-		}
+    private TimeSeriesResponse makeAlphaVantageRequest(String symbol) {
+        Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
+        AlphaVantage.api().init(cfg);
+        return AlphaVantage.api().timeSeries()
+                .daily()
+                .forSymbol(symbol)
+                .outputSize(OutputSize.FULL)
+                .dataType(DataType.JSON)
+                .fetchSync();
+    }
 
-		// Round the values in the stockMap to 4 decimal places
-		// source: https://www.baeldung.com/java-round-decimal-number
-		// and
-		// https://stackoverflow.com/questions/53947390/mapstring-integer-getting-rounded-int-percentage
-		stockMap.replaceAll((key, value) -> value != null ? Math.round(value * 10000.0) / 10000.0 : null);
-	}
-
-	public void printStockMap(Map<String, Double> stockMap) {
-		System.out.println("\nPrinting Stock Map:");
-		for (Map.Entry<String, Double> entry : stockMap.entrySet()) {
-			System.out.println("Stock Symbol: " + entry.getKey() + ", Value: " + entry.getValue());
-		}
-	}
-
-	public void processStockData(String symbol, int dataPoints) {
-		Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
-		AlphaVantage.api().init(cfg);
-		System.out.println("Processing data for symbol: " + symbol);
-
-		try {
-			TimeSeriesResponse response = AlphaVantage.api().timeSeries().daily().forSymbol(symbol)
-					.outputSize(OutputSize.FULL).dataType(DataType.JSON).fetchSync();
-
-			List<StockUnit> stockUnits = response.getStockUnits();
-
-			// Calculate standard deviation
-			double standardDeviation = calculateStandardDeviation(stockUnits, dataPoints);
-			stockMap.put(symbol, standardDeviation);
-
-			System.out.println("Standard Deviation for " + symbol + ": " + standardDeviation);
-
-		} catch (AlphaVantageException e) {
-			e.printStackTrace();
-		}
-	}
 
 	/*
 	 * source :
