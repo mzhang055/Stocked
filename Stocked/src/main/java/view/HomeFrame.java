@@ -14,6 +14,7 @@ public class HomeFrame extends JFrame implements ActionListener {
 
 	private JButton yahooBtn, bloombergBtn;
 	private NavigationBarPanel navPanel;
+	private RecommendationPanel recommendPanel;
 
 	// constructor
 	public HomeFrame() {
@@ -37,31 +38,18 @@ public class HomeFrame extends JFrame implements ActionListener {
 		navPanel.setBounds(0, 0, 1440, 115);
 		imageLabel.add(navPanel);
 		
-		
 
-		// add the ouac button which leads to a browser link
-		ImageIcon yahooIcon = new ImageIcon("images/yahoo.png");
-		yahooBtn = new JButton(yahooIcon);
-		yahooBtn.setOpaque(false);
-		yahooBtn.setContentAreaFilled(false);
-		yahooBtn.setBorderPainted(false);
-		yahooBtn.setBounds(616, 356, yahooIcon.getIconWidth(), yahooIcon.getIconHeight());
-		yahooBtn.addActionListener(this);
-		layeredPane.add(yahooBtn, Integer.valueOf(1));
+		//create and add survey panel (questions) to frame
+		recommendPanel = new RecommendationPanel();
+		recommendPanel.setBounds(0, 300, 1440, 500);
+		
+		recommendPanel.setVisible(true);
 
-		// add the ontransfer button which leads to a browser link
-		ImageIcon bloomIcon = new ImageIcon("images/bloomberg.png");
-		bloombergBtn = new JButton(bloomIcon);
-		bloombergBtn.setOpaque(false);
-		bloombergBtn.setContentAreaFilled(false);
-		bloombergBtn.setBorderPainted(false);
-		bloombergBtn.setBounds(1000, 368, bloomIcon.getIconWidth(), bloomIcon.getIconHeight());
-		bloombergBtn.addActionListener(this);
-		layeredPane.add(bloombergBtn, Integer.valueOf(1));
-		
-		
+
+
 		// add background image to the last layer
 		layeredPane.add(imageLabel, Integer.valueOf(0));
+		layeredPane.add(recommendPanel, Integer.valueOf(2));
 		getContentPane().add(layeredPane);
 
 		//set visible

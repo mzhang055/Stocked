@@ -253,6 +253,9 @@ public class RegisterFrame extends JFrame implements ActionListener {
 
 	        //determine the user's matching stocks
 	        recommend.determineMatchingStocks(userData.getRisk());
+	       
+	        ChartController chartController = new ChartController();
+	
 	        
 	        
 	        LoginController.addUserToDatabase(userData);
