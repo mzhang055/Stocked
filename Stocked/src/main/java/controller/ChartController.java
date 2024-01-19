@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import model.UserData;
+import view.EarningsPanel;
 import view.HomeFrame;
 
 /**
@@ -46,13 +47,20 @@ public class ChartController {
 	private static RecommendationController recommend;
 
 	private static ChartPanel chartPanel;
+	private EarningsPanel earnings;
 	public String xValue;
 	public double yValue;
 	public String seriesKey;
+	public String chartInfo; 
 
 	public ChartController() {
 		recommend = new RecommendationController();
 
+	}
+
+	public ChartController(EarningsPanel earnings) {
+		recommend = new RecommendationController();
+		this.earnings = earnings; // Initialize EarningsPanel
 	}
 
 	public void generateCharts(String userRisk) {
@@ -103,6 +111,8 @@ public class ChartController {
 
 	private class CustomChartMouseListener implements ChartMouseListener {
 		private ChartPanel chartPanel;
+		  private EarningsPanel earnings;
+		  private ChartController chartController;
 
 		public CustomChartMouseListener(ChartPanel chartPanel) {
 			this.chartPanel = chartPanel;
@@ -110,35 +120,37 @@ public class ChartController {
 
 		@Override
 		public void chartMouseClicked(ChartMouseEvent event) {
-			JFreeChart chart = chartPanel.getChart();
-			CategoryPlot plot = (CategoryPlot) chart.getPlot();
-			Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
+			earnings = new EarningsPanel(chartController);
+		    JFreeChart chart = chartPanel.getChart();
+		    CategoryPlot plot = (CategoryPlot) chart.getPlot();
+		    Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
 
-			ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
+		    ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
 
-			if (entity instanceof CategoryItemEntity) {
-				CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
+		    if (entity instanceof CategoryItemEntity) {
+		        CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
 
-				xValue = categoryEntity.getColumnKey().toString(); // Assuming X-axis is a String (category)
-				yValue = categoryEntity.getDataset()
-						.getValue(categoryEntity.getRowKey(), categoryEntity.getColumnKey()).doubleValue();
+		        xValue = categoryEntity.getColumnKey().toString(); // Assuming X-axis is a String (category)
+		        yValue = categoryEntity.getDataset().getValue(categoryEntity.getRowKey(), categoryEntity.getColumnKey())
+		                .doubleValue();
 
-				System.out.println("Date: " + xValue + ", Closing Price: $" + yValue);
+		        // Store chart information in the variable
+		        chartInfo = "Date: " + xValue + ", Closing Price: $" + yValue;
 
-				// Now you have xValue and yValue for the clicked point
-				// You can use these values as needed in your application
-			} 
-			if (entity instanceof LegendItemEntity) {
-				// Handle LegendItemEntity
-				LegendItemEntity legendEntity = (LegendItemEntity) entity;
+		        System.out.println(chartInfo);
+		        earnings.displayXandY(xValue, yValue);
+		    }
+		    if (entity instanceof LegendItemEntity) {
+		        // Handle LegendItemEntity
+		        LegendItemEntity legendEntity = (LegendItemEntity) entity;
 
-				// Retrieve information from the legend item
-				seriesKey = legendEntity.getSeriesKey().toString();
-				boolean seriesVisible = chart.getXYPlot().getDataset()
-						.getSeriesKey(chart.getXYPlot().getDataset().indexOf(legendEntity.getSeriesKey())) != null;
+		        // Retrieve information from the legend item
+		        seriesKey = legendEntity.getSeriesKey().toString();
+		        boolean seriesVisible = chart.getXYPlot().getDataset()
+		                .getSeriesKey(chart.getXYPlot().getDataset().indexOf(legendEntity.getSeriesKey())) != null;
 
-				System.out.println("Legend Clicked - Series: " + seriesKey + ", Visible: " + seriesVisible);
-			}
+		        System.out.println("Legend Clicked - Series: " + seriesKey + ", Visible: " + seriesVisible);
+		    }
 		}
 
 		@Override
@@ -229,6 +241,8 @@ public class ChartController {
 		this.seriesKey = seriesKey;
 	}
 	
-	
+	public String getChartInfo() {
+	    return chartInfo;
+	}
 
 }
