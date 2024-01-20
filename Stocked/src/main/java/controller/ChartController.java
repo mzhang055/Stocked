@@ -1,7 +1,11 @@
+/*
+ * This class retrieves the historical closing data for recommended 
+ * stocks and displays them all on one graph
+ */
+
 package controller;
 
 import java.awt.BasicStroke;
-import java.awt.geom.Point2D;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,20 +13,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.*;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.DateAxis; // Import DateAxis
-import org.jfree.chart.axis.DateTickUnit; // Import DateTickUnit
-import org.jfree.chart.axis.DateTickUnitType; // Import DateTickUnitType
-import org.jfree.chart.entity.CategoryItemEntity;
-import org.jfree.chart.entity.ChartEntity;
-import org.jfree.chart.entity.LegendItemEntity;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.DateTickUnit;
 import org.jfree.chart.axis.DateTickUnitType;
+
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
@@ -38,41 +36,30 @@ import com.crazzyghost.alphavantage.timeseries.response.TimeSeriesResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import model.UserData;
-import view.EarningsPanel;
-import view.HomeFrame;
-
-/**
- * 
- */
 public class ChartController {
 
+	// instance of classes
 	private static RecommendationController recommend;
-
 	private static ChartPanel chartPanel;
-	private EarningsPanel earnings;
-	private UserData userData;
-	public String xValue;
-	public double yValue;
+
+	// storing data
 	public String seriesKey;
 	public String chartInfo;
 	private List<String> clickedDates = new ArrayList<>();
 
+	
+	//constructor ensures that recommedation controller is ready for the methods in this class
+	//since they are dependant on the recoemmended stocks in order to graph it
 	public ChartController() {
 		recommend = new RecommendationController();
 
 	}
 
-	public ChartController(EarningsPanel earnings) {
-		recommend = new RecommendationController();
-		this.earnings = earnings; // Initialize EarningsPanel
-	}
-
 	public void generateCharts(String userRisk) {
-		// Get matching stocks from RecommendationController
+		// get matching stocks from RecommendationController
 		ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
 
-		// Create a combined dataset
+		// create a combined dataset
 		DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
 
 		// Iterate through matching stocks
@@ -113,78 +100,13 @@ public class ChartController {
 			renderer.setSeriesStroke(i, new BasicStroke(5.0f)); // set thicknes
 		}
 
-		// display the chart 
+		// display the chart
 		chartPanel = new ChartPanel(chart);
-		//chartPanel.addChartMouseListener(new CustomChartMouseListener(chartPanel));
+
 	}
 
-//	//source: https://www.jfree.org/forum/viewtopic.php?t=117858
-//	private class CustomChartMouseListener implements ChartMouseListener {
-//		private ChartPanel chartPanel;
-//		private EarningsPanel earnings;
-//		private ChartController chartController;
-//
-//		public CustomChartMouseListener(ChartPanel chartPanel) {
-//			this.chartPanel = chartPanel;
-//		}
-//
-//		@Override
-//		public void chartMouseClicked(ChartMouseEvent event) {
-//			earnings = EarningsPanel.getInstance(chartController, userData);
-//
-//			JFreeChart chart = chartPanel.getChart();
-//			CategoryPlot plot = (CategoryPlot) chart.getPlot();
-//			Point2D p = chartPanel.translateScreenToJava2D(event.getTrigger().getPoint());
-//
-//			ChartEntity entity = chartPanel.getEntityForPoint((int) p.getX(), (int) p.getY());
-//
-//			if (entity instanceof CategoryItemEntity) {
-//				CategoryItemEntity categoryEntity = (CategoryItemEntity) entity;
-//
-//				xValue = categoryEntity.getColumnKey().toString();
-//				yValue = categoryEntity.getDataset().getValue(categoryEntity.getRowKey(), categoryEntity.getColumnKey())
-//						.doubleValue();
-//
-//				// Store chart information in the variable
-//				chartInfo = "Date: " + xValue + ", Closing Price: $" + yValue;
-//
-//				// Store the clicked date in the list
-//				clickedDates.add(xValue);
-//
-//				setxValue(xValue);
-//				setyValue(yValue);
-//
-//				System.out.println(chartInfo);
-//				// Pass the information to displayXandY method
-//				earnings.displayXandY(xValue, yValue, seriesKey);
-//				
-//			}
-//			if (entity instanceof LegendItemEntity) {
-//			    // Handle LegendItemEntity
-//			    LegendItemEntity legendEntity = (LegendItemEntity) entity;
-//
-//			    // Retrieve information from the legend item
-//			    Comparable seriesKeyComparable = legendEntity.getSeriesKey();
-//
-//			    if (seriesKeyComparable != null) {
-//			        seriesKey = seriesKeyComparable.toString();
-//			        setSeriesKey(seriesKey);
-//			        System.out.println("Legend Clicked - Series: " + seriesKey);
-//			    } else {
-//			        System.out.println("Legend Clicked - Series key is null");
-//			    }
-//			}
-//
-////			
-////
-//		}
-//
-//		@Override
-//		public void chartMouseMoved(ChartMouseEvent event) {
-//			// Do nothing for mouse movement
-//		}
-//	}
-
+	// if the api sucessfully retreives historic stock data, then this method will
+	// run and plot the stock trends on one graph
 	public void handleSuccess(TimeSeriesResponse response, DefaultCategoryDataset combinedDataset, String stockSymbol) {
 		try {
 			// Convert TimeSeriesResponse to JSON string
@@ -194,7 +116,7 @@ public class ChartController {
 			// Parse the JSON string using Jackson
 			JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 
-			// Print the parsed JSON data
+			// Print the parsed JSON data (testing)
 			System.out.println(
 					"Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
 
@@ -202,19 +124,23 @@ public class ChartController {
 			ArrayList<StockUnit> sortedStockUnits = new ArrayList<>(response.getStockUnits());
 			Collections.sort(sortedStockUnits, (unit1, unit2) -> unit1.getDate().compareTo(unit2.getDate()));
 
+			// iterate through all the stocks and get their date and closing price. this
+			// info is used to graph
 			for (StockUnit stockUnit : sortedStockUnits) {
 				String date = stockUnit.getDate();
 				double close = stockUnit.getClose();
 
-				// Format date as year and week
+				// format date as year and week
 				SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
 				SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+				// parse the date and format it
 				Date parsedDate = inputFormat.parse(date);
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTime(parsedDate);
 				String formattedDate = outputFormat.format(parsedDate);
 
+				// add the data point to the combined dataset for graphing
 				combinedDataset.addValue(close, stockSymbol, formattedDate);
 			}
 		} catch (Exception e) {
@@ -222,11 +148,14 @@ public class ChartController {
 		}
 	}
 
+	// if data is not sucessfully retrieved, this method will run (mainly used for
+	// testing)
 	public void handleFailure(AlphaVantageException error) {
 		System.out.println("Doesn't function");
 		System.out.println(error.getMessage());
 	}
 
+	// getters and setters
 	public static ChartPanel getChartPanel() {
 		return chartPanel;
 	}
@@ -243,22 +172,6 @@ public class ChartController {
 		ChartController.recommend = recommend;
 	}
 
-	public String getxValue() {
-		return xValue;
-	}
-
-	public void setxValue(String xValue) {
-		this.xValue = xValue;
-	}
-
-	public double getyValue() {
-		return yValue;
-	}
-
-	public void setyValue(double yValue) {
-		this.yValue = yValue;
-	}
-
 	public String getSeriesKey() {
 		return seriesKey;
 	}
@@ -269,14 +182,6 @@ public class ChartController {
 
 	public String getChartInfo() {
 		return chartInfo;
-	}
-
-	// Method to get the latest clicked date
-	public String getLatestClickedDate() {
-		if (!clickedDates.isEmpty()) {
-			return clickedDates.get(clickedDates.size() - 1);
-		}
-		return null;
 	}
 
 }

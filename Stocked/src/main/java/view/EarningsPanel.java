@@ -1,3 +1,8 @@
+/*
+ * this class retrieves and displays the user's potential gains/loss if they were to 
+ * invest  one of their recommended stocks at a given time.
+ */
+
 package view;
 
 import javax.swing.*;
@@ -6,7 +11,6 @@ import com.toedter.calendar.JDateChooser;
 
 import controller.ChartController;
 import controller.StockController;
-import controller.LoginController;
 import model.UserData;
 
 import java.awt.*;
@@ -19,24 +23,28 @@ import java.util.HashMap;
 
 public class EarningsPanel extends JPanel {
 
+	// fields for components of panel
 	private JLabel infoLabel;
-	private ChartController chart;
-	private ArrayList<String> clickedValues = new ArrayList<>(); // ArrayList to store values
-	private String updated;
-	private static EarningsPanel instance;
-	
-	private StockController stockController;
-	private RegisterFrame registerFrame;
-	private JLabel earnings;
+	private JLabel recommendLabel;
 	private JButton refreshButton;
-	private JButton addToPortfolio;
 	private JDateChooser dateChooser; // Date chooser component
 	private JComboBox<String> stockComboBox; // Combo box for stocks
-	private HashMap<String, String> selectedStocks = new HashMap<>(); // HashMap to store selected stocks and dates
+
+	// private ArrayList<String> clickedValues = new ArrayList<>(); // ArrayList to
+	// store values
+
+	// variables and data structures
+	private String updated;
+	private String recommendInfo;
+	private HashMap<String, String> selectedStocks = new HashMap<>(); // stores stock symbol and date
+
+	// instance of classes
+	private static EarningsPanel instance;
+	private ChartController chart;
+	private StockController stockController;
 	private UserData userData;
 
-	
-	//constructor passes these instances as a parameter to ensure consistency
+	// constructor passes these instances as a parameter to ensure consistency
 	private EarningsPanel(ChartController chart, UserData userData) {
 		this.chart = chart; // Store the reference to ChartController
 		this.userData = userData;
@@ -48,7 +56,7 @@ public class EarningsPanel extends JPanel {
 		// Create a label to hold the background image
 		JLabel backgroundLabel = new JLabel(bg);
 		backgroundLabel.setLayout(new BorderLayout());
-		add(backgroundLabel, BorderLayout.CENTER);
+		// add(backgroundLabel, BorderLayout.CENTER);
 
 		// Use a JPanel with FlowLayout for the date chooser and combo box
 		JPanel inputPanel = new JPanel();
@@ -76,97 +84,112 @@ public class EarningsPanel extends JPanel {
 				System.out.println("Hashmap:");
 				processSelectedStocks(userData.getMoney());
 
-				// Remove existing earnings label
-				if (earnings != null) {
-					remove(earnings);
-				}
+				System.out.println("TESTING FOR SHARE:" + stockController.getNumShares());
 
-				// Create a new earnings label and add it to the center of the panel
-				earnings = new JLabel(displayXandY(formattedDate, 0.0, selectedStock));
-				add(earnings, BorderLayout.CENTER);
-
+				updateRecommendationLabel();
 				// Repaint the panel to reflect the changes
 				revalidate();
 				repaint();
 			}
 		});
 
-		// Create a date chooser
+		// Create a date chooser to pick stock dates
 		dateChooser = new JDateChooser();
-		dateChooser.setDateFormatString("yyyy-MM-dd"); // Set the date format
+		dateChooser.setDateFormatString("yyyy-MM-dd");
 		dateChooser.setMaxSelectableDate(new Date()); // Restrict to the current date and earlier
-		dateChooser.setDate(new Date()); // Set the default date to the current date
+		dateChooser.setDate(new Date()); // set the default date to the current date
 
-		/// Create a combo box for stocks
+		/// create a combo box for stocks
 		stockComboBox = new JComboBox<>();
-		stockComboBox.setEditable(false); 
+		stockComboBox.setEditable(false);
 
-		// Add the matching stocks to the combo box
+		// add the matching stocks to the combo box
 		ArrayList<String> matchingStocks = ChartController.getRecommend().determineMatchingStocks("yourRisk");
 		for (String stock : matchingStocks) {
 			stockComboBox.addItem(stock);
 		}
 
-		// Add the components to the input panel
+		// add the components to the input panel
 		inputPanel.add(dateChooser);
 		inputPanel.add(stockComboBox);
 
-		// Add the input panel and refresh button to the main panel
+		// add the input panel and refresh button to the main panel
 		add(inputPanel, BorderLayout.NORTH);
 		add(refreshButton, BorderLayout.SOUTH);
 	}
 
+	// use a singleton instead of a static class in order to limit the program to
+	// exactly one instance of the object
+	// (many parts of the program want to use this--shared resource)
+	// https://softwareengineering.stackexchange.com/questions/235527/when-to-use-a-singleton-and-when-to-use-a-static-class
+
 	public static EarningsPanel getInstance(ChartController chart, UserData userData) {
 		if (instance == null) {
-			instance = new EarningsPanel(chart,userData);
+			instance = new EarningsPanel(chart, userData);
 		}
 		return instance;
 	}
 
-	// Method to display X and Y values
-	public String displayXandY(String date, double money, String stock) {
-		// Example: Display the clicked point's coordinates
-		// Assuming getxValue() and getyValue() are methods in your ChartController
-		String test = "If you invested " + money + " during " + date + " to " + stock;
+	// this method retrieves the stock and date the user selected from the drop down
+	// menus
+	// this data is used to get the stock's closing price from the api
+	public void processSelectedStocks(String money) {
+		stockController = new StockController();
 
-		// System.out.println(test);
+		System.out.println("user money: " + userData.getMoney());
+		System.out.println("Selected Stocks and Dates:");
 
-		// Update the text content of the infoLabel
-		// infoLabel.setText(xValue + " and " + number);
-
-		JLabel testLabel = new JLabel(test);
-		testLabel.setForeground(Color.BLACK); // Set text color
-		testLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		add(testLabel, BorderLayout.NORTH);
-
-		// Store the clicked values in the ArrayList
-		clickedValues.add(test);
-
-		// Print the contents of clickedValues for debugging
-		System.out.println("Clicked values: " + clickedValues);
-
-		if (!clickedValues.isEmpty()) {
-			updated = clickedValues.get(clickedValues.size() - 1);
-			setUpdated(updated);
-			return updated;
-		} else {
-			return null; // or return some default value if the list is empty
+		for (String stock : selectedStocks.keySet()) {
+			String date = selectedStocks.get(stock);
+			System.out.println("Stock: " + stock + ", Date: " + date);
+			stockController.processSpecificStock(stock, date, userData.getMoney());
 		}
 	}
 
-	public void processSelectedStocks(String money) {
-	    stockController = new StockController();
-	    
-	    System.out.println("user money: " + userData.getMoney());
+	
+	private void updateRecommendationLabel() {
 
-	    System.out.println("Selected Stocks and Dates:");
-	    for (String stock : selectedStocks.keySet()) {
-	        String date = selectedStocks.get(stock);
-	        System.out.println("Stock: " + stock + ", Date: " + date);
-	        stockController.processSpecificStock(stock, date, userData.getMoney());
-	    }
+		double profitLoss = stockController.getProfitLoss();
+		String formattedProfitLoss = String.format("%.2f", profitLoss);
+
+		// Fill the string with user's potential investment info
+		// use html tags to allow for the jlabel to determine line breaks
+		// source:
+		// https://stackoverflow.com/questions/7861724/is-there-a-word-wrap-property-for-jlabel
+		recommendInfo = "<html><div style='text-align: center;'>"
+				+ "<div style='font-size: 24px;'>If you invested </div>"
+				+ "<div style='color: #F4AA31; font-size: 30px;'>$" + userData.getMoney() + "</div>"
+				+ "<div style='color: #000000; font-size: 24px;'> into </div>"
+				+ "<div style='color: #F4AA31; font-size: 30px;'>" + stockController.getStockSymbol() + "</div>"
+				+ "<div style='font-size: 24px;'> in </div>" + "<div style='font-size: 24px;'>"
+				+ stockController.getDate() + "</div>"
+				+ "<div style='font-size: 24px;'> you would experience a profit/loss of </div>"
+				+ "<div style='color: #F4AA31; font-size: 30px;'>" + formattedProfitLoss + "</div>" + "</div></html>";
+		
+		
+		// Remove the previous recommendLabel if it exists
+		if (recommendLabel != null) {
+			remove(recommendLabel);
+		}
+
+		recommendLabel = new JLabel(recommendInfo);
+		recommendLabel.setForeground(Color.BLACK);
+		recommendLabel.setPreferredSize(new Dimension(500, 700));
+		recommendLabel.setFont(new Font("Arial", Font.BOLD, 18));
+
+		// Set FlowLayout for the recommendLabel
+		JPanel labelContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		labelContainer.add(recommendLabel);
+
+		// Add the updated recommendLabel to the center of the panel
+		add(labelContainer, BorderLayout.CENTER);
+
+		// Repaint the panel to reflect the changes
+		revalidate();
+		repaint();
 	}
 
+	// setters and getters
 	public JLabel getInfoLabel() {
 		return infoLabel;
 	}
@@ -181,14 +204,6 @@ public class EarningsPanel extends JPanel {
 
 	public void setChart(ChartController chart) {
 		this.chart = chart;
-	}
-
-	public ArrayList<String> getClickedValues() {
-		return clickedValues;
-	}
-
-	public void setClickedValues(ArrayList<String> clickedValues) {
-		this.clickedValues = clickedValues;
 	}
 
 	public String getUpdated() {

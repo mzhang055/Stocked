@@ -24,6 +24,13 @@ public class StockController {
     private Map<String, Double> stockMap;
     private double standardDeviation;
     public String riskLevel;
+    
+    //variables to store data
+    private int numShares;
+    private double profitLoss;
+    private double currentValue;
+    private String stockSymbol;
+    private String date;
 
     public static void main(String[] args) {
         StockController processor = new StockController();
@@ -107,16 +114,21 @@ public class StockController {
             if (closePrice != -1) {
                 System.out.println("Close Price for " + symbol + " on date " + date + ": " + closePrice);
 
+                setStockSymbol(symbol);
+                setDate(date);
                 // Calculate the number of shares that could be bought with the investment amount
-                int numberOfShares = (int) (investmentAmount / closePrice);
-
+                numShares = (int) (investmentAmount / closePrice);
+                setNumShares(numShares);
+                
                 // Calculate the current value of the investment
-                double currentValue = numberOfShares * closePrice;
+                currentValue = numShares * closePrice;
+                setCurrentValue(currentValue);
 
                 // Calculate profit or loss
-                double profitLoss = currentValue - investmentAmount;
+                profitLoss = currentValue - investmentAmount;
+                setProfitLoss(profitLoss);
 
-                System.out.println("Number of Shares Purchased: " + numberOfShares);
+                System.out.println("Number of Shares Purchased: " + numShares);
                 System.out.println("Current Value of Investment: " + currentValue);
                 System.out.println("Profit/Loss: " + profitLoss);
             } else {
@@ -199,6 +211,8 @@ public class StockController {
 		}
 	}
 
+	
+	//getters and setters 
 	public Map<String, Double> getStockMap() {
 		return stockMap;
 	}
@@ -214,5 +228,55 @@ public class StockController {
 	public void setStandardDeviation(double standardDeviation) {
 		this.standardDeviation = standardDeviation;
 	}
+
+	public String getRiskLevel() {
+		return riskLevel;
+	}
+
+	public void setRiskLevel(String riskLevel) {
+		this.riskLevel = riskLevel;
+	}
+
+	public int getNumShares() {
+		return numShares;
+	}
+
+	public void setNumShares(int numShares) {
+		this.numShares = numShares;
+	}
+
+	public double getProfitLoss() {
+		return profitLoss;
+	}
+
+	public void setProfitLoss(double profitLoss) {
+		this.profitLoss = profitLoss;
+	}
+
+	public double getCurrentValue() {
+		return currentValue;
+	}
+
+	public void setCurrentValue(double currentValue) {
+		this.currentValue = currentValue;
+	}
+
+	public String getStockSymbol() {
+		return stockSymbol;
+	}
+
+	public void setStockSymbol(String stockSymbol) {
+		this.stockSymbol = stockSymbol;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+	
+	
 
 }

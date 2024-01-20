@@ -1,5 +1,6 @@
 /*
- *
+ * this class is responsible for creating a nav bar panel (menu panel) that is used 
+ * for all frames in this program.
  */
 
 package view;
@@ -16,15 +17,14 @@ import java.awt.event.ActionListener;
 public class NavigationBarPanel extends JPanel implements ActionListener {
 
 	// create buttons
-	private JButton homeBtn, investBtn, predictionBtn, portfolioBtn, signOutBtn;
+	private JButton homeBtn, investBtn, predictionBtn, signOutBtn;
 
 	// instance of classes
 	private static HomeFrame home;
 
 
-	// constructor
+	// constructor sets up the panel with all components
 	public NavigationBarPanel() {
-		
 		
 		// set up panel
 		setOpaque(false);
@@ -34,7 +34,7 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 		homeBtn = createButton(null, "images/logo.png");
 		investBtn = createButton("Investment Tool", null);
 		predictionBtn = createButton("Predictions", null);
-		portfolioBtn = createButton("My Portfolio", null);
+
 		signOutBtn = createButton("Sign Out", null);
 
 		// set font size for text buttons
@@ -46,20 +46,18 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 		investBtn.setForeground(fontColor);
 		predictionBtn.setFont(buttonFont);
 		predictionBtn.setForeground(fontColor);
-		portfolioBtn.setFont(buttonFont);
-		portfolioBtn.setForeground(fontColor);
 		signOutBtn.setFont(buttonFont);
 		signOutBtn.setForeground(fontColor);
 
 
 		// set layout manager and space out buttons
-		setLayout(new FlowLayout(FlowLayout.CENTER, 90, 10));
+		setLayout(new FlowLayout(FlowLayout.CENTER, 100, 10));
 
 		// add buttons to panel
 		add(homeBtn);
 		add(investBtn);
 		add(predictionBtn);
-		add(portfolioBtn);
+	
 		add(signOutBtn);
 
 
@@ -67,7 +65,7 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 		homeBtn.addActionListener(this);
 		investBtn.addActionListener(this);
 		predictionBtn.addActionListener(this);
-		portfolioBtn.addActionListener(this);
+
 		signOutBtn.addActionListener(this);
 
 
@@ -103,26 +101,19 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 
 
 
-			// open browse programs
+			// open recoemmdned investments
 		} else if (e.getSource() == investBtn) {
 			
 
 		}
 
-		// open interactive map
+		// open stock predictions 
 		else if (e.getSource() == predictionBtn) {
 
 			
 		}
 
-		// open survey button
-		else if (e.getSource() == portfolioBtn) {
-			
-
-		
-		}
-
-		// open browse jobs button
+		// handle signout. this closes the application
 		else if (e.getSource() == signOutBtn) {
 			new HomeFrame();
 			System.exit(0);

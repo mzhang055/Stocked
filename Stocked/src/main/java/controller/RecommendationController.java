@@ -13,10 +13,7 @@ public class RecommendationController {
     private static RecommendationController instance;
 
     
-    //ensure it is a singleton
-    public RecommendationController() {
-        // private constructor to prevent instantiation
-    }
+
 
     
     public static RecommendationController getInstance() {

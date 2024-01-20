@@ -53,7 +53,7 @@ public class HomeFrame extends JFrame implements ActionListener {
 		EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
 
 
-		earningsPanel.setBounds(900, 100, 400, 700);
+		earningsPanel.setBounds(900, 100, 500, 700);
 
 		// create and add chart panel to RecommendationPanel
 		recommendPanel = new RecommendationPanel();
