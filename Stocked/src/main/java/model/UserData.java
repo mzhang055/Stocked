@@ -1,5 +1,5 @@
 /*
- * 
+ * this class stores all information on the user 
  */
 
 package model;
@@ -48,8 +48,6 @@ public class UserData {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-
-
 
 	public String getAge() {
 		return age;

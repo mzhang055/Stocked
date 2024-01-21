@@ -10,52 +10,66 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class RecommendationController {
-    private static RecommendationController instance;
 
-    
+	// instance of classes
+	private static RecommendationController instance;
 
-
-    
-    public static RecommendationController getInstance() {
-        if (instance == null) {
-            instance = new RecommendationController();
-        }
-        return instance;
-    }
+	// store the recommended stocks
 	public ArrayList<String> matchingStocks = new ArrayList<String>();
 
-	public ArrayList<String> determineMatchingStocks(String userRisk) {
-	    RiskController riskController = new RiskController();
-	    riskController.determineStockRisk();
-
-	    if (riskController != null) {
-	        Map<String, String> stockRiskLevels = riskController.getStockRiskLevels();
-	        if (stockRiskLevels != null) {
-	            // Determine risk based on stockMap values
-	            int count = 0;  // Counter for the number of matching stocks added
-	            for (Map.Entry<String, String> entry : stockRiskLevels.entrySet()) {
-	                String stockSymbol = entry.getKey();
-	                String riskLevel = entry.getValue();
-
-	                // Compare stock risk level with user risk level
-	                if (userRisk.equalsIgnoreCase(riskLevel)) {
-	                    // Store matching stocks in the ArrayList, but limit to the first 3
-	                    if (count < 10) {
-	                        matchingStocks.add(stockSymbol);
-	                        count++;
-	                    }
-	                }
-	            }
-	        } else {
-	            System.out.println("Stock risk levels map is null.");
-	        }
-	    } 
-
-	    printMatchingStocks();
-	    return matchingStocks;
+	// singleton design pattern ensures that a class only has one instance (controls
+	// instantiation)
+	// source:
+	// https://softwareengineering.stackexchange.com/questions/235527/when-to-use-a-singleton-and-when-to-use-a-static-class
+	public static RecommendationController getInstance() {
+		if (instance == null) {
+			instance = new RecommendationController();
+		}
+		return instance;
 	}
 
+	//this method compares the risks levels of the stock and the user to get the 10 recommended ones
+	//since the web scrapping retreives data in order from most active to least active, that order is 
+	//maintained thorugh the mathcing
+	public ArrayList<String> determineMatchingStocks(String userRisk) {
+		
+		//create an instance of risk controller to use the stock risk method
+		RiskController riskController = new RiskController();
+		riskController.determineStockRisk();
 
+		//if risk controller is properly instantiated
+		if (riskController != null) {
+			
+			//populate hashmap with stock risk levels
+			Map<String, String> stockRiskLevels = riskController.getStockRiskLevels();
+			if (stockRiskLevels != null) {
+				// determine risk based on stockMap values
+				int count = 0; // counter for the number of matching stocks added
+				for (Map.Entry<String, String> entry : stockRiskLevels.entrySet()) {
+					String stockSymbol = entry.getKey();
+					String riskLevel = entry.getValue();
+
+					// compare stock risk level with user risk level
+					if (userRisk.equalsIgnoreCase(riskLevel)) {
+						// store matching stocks in the ArrayList, but limit to the first 10
+						if (count < 10) {
+							matchingStocks.add(stockSymbol);
+							count++;
+						}
+					}
+				}
+				//error checking
+			} else {
+				System.out.println("Stock risk levels map is null.");
+			}
+		}
+
+		//display matching stocks
+		printMatchingStocks();
+		return matchingStocks;
+	}
+
+	//this method is repsonsible for iterating thorugh the matching stocks and diplaying them all
 	public void printMatchingStocks() {
 		// Print the matching stocks
 		System.out.println("Matching Stocks:");

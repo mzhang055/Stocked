@@ -121,6 +121,21 @@
 			<version>1.4</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.workday/timeseries-forecast -->
+		<dependency>
+			<groupId>com.workday</groupId>
+			<artifactId>timeseries-forecast</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+
 
 	</dependencies>
 </project>

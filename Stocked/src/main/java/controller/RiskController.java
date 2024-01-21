@@ -6,26 +6,28 @@
 
 package controller;
 
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 public class RiskController {
 
+	//variables
 	private static final int DEFAULT_WEIGHTING = 1;
 	public String userRisk;
-	public static StockController stockController;
 	
-	public Map<String, String> stockRiskLevels;
+	//instance of classes
+	public static StockController stockController = new StockController();
 
+	//data structure
+	public Map<String, String> stockRiskLevels;
+	
+	//
 	public String determineUserRisk(Map<Integer, Integer> buttonValues) {
 
 		// Call calculateRisk method with the buttonValues HashMap
 		double riskPercentage = calculateRiskPercentage(buttonValues);
 		printButtonValues(buttonValues);
-		
 
 		// low risk is set to 22 because if user selects '1' (least likely) for all
 		// questions,
@@ -33,25 +35,28 @@ public class RiskController {
 		// all questions
 		if (riskPercentage < 22) {
 			userRisk = "Very Low Risk";
-			//set to 49 because this is the percentage if user answers '2' for all questions
+			// set to 49 because this is the percentage if user answers '2' for all
+			// questions
 		} else if (riskPercentage <= 49) {
 			userRisk = "Low Risk";
-		//set to 84 because this is the percentage if user answers '3' for all questions
+			// set to 84 because this is the percentage if user answers '3' for all
+			// questions
 		} else if (riskPercentage <= 84) {
 			userRisk = "Moderate Risk";
-			//125 is the percentage if user answers '4' for all questions
+			// 125 is the percentage if user answers '4' for all questions
 		} else if (riskPercentage <= 122) {
 			userRisk = "High Risk";
 		} else {
 			userRisk = "Very High Risk";
 		}
 
+		//return the user's risk
 		return userRisk;
+
 		
-		
-		//RECOMMENDATINO CONTROLLEr
 	}
 
+	//dipslay the contents of the hashmap
 	private void printButtonValues(Map<Integer, Integer> buttonValues) {
 		System.out.println("\n\nButton Values from controller:");
 		for (Entry<Integer, Integer> entry : buttonValues.entrySet()) {
@@ -59,6 +64,8 @@ public class RiskController {
 		}
 	}
 
+	//this method calculates the user's risk by taking into accoun the weighting of each question
+	//the last 3 quetsions are weighed more
 	public double calculateRiskPercentage(Map<Integer, Integer> buttonValues) {
 		int totalWeightedScore = 0;
 		int totalWeighting = 0;
@@ -82,7 +89,7 @@ public class RiskController {
 			totalWeighting += weighting;
 		}
 
-		// Calculate the percentage
+		// calculate the percentage
 		double riskPercentage = (double) totalWeightedScore / 9;
 		System.out.println("risk: " + riskPercentage);
 
@@ -104,29 +111,38 @@ public class RiskController {
 			return DEFAULT_WEIGHTING; // Default weighting
 		}
 	}
+
+	//determine the risk of each stock by calculating the standard deviation
+	//this method also returns an updated hashmap filled with these values
+	public Map<String, String> determineStockRisk() {
+		stockRiskLevels = new HashMap<>();
+
+		//iterate through entire stock hashmap values if there is content
+		if (stockController.getStockMap() != null) {
+			for (Map.Entry<String, Double> entry : stockController.getStockMap().entrySet()) {
+				//the key of hashmap represent the stock symbols
+				String stockSymbol = entry.getKey();
+				//values represent the standard deviation
+				double standardDeviation = entry.getValue();
+
+				//determine risk level
+				String riskLevel = determineRiskLevel(standardDeviation);
+				stockRiskLevels.put(stockSymbol, riskLevel);
 	
-	 public Map<String, String> determineStockRisk() {
-	        stockRiskLevels = new HashMap<>();
+				//dipslay on console
+				System.out.println("Stock: " + stockSymbol + ", Risk Level: " + riskLevel);
+			}
 
-	        if (stockController.getStockMap() != null) {
-	            for (Map.Entry<String, Double> entry : stockController.getStockMap().entrySet()) {
-	                String stockSymbol = entry.getKey();
-	                double standardDeviation = entry.getValue();
+			//error checking
+		} else {
+			System.out.println("stockMap is null. Data might not be retrieved.");
+		}
 
-	                String riskLevel = determineRiskLevel(standardDeviation);
-	                stockRiskLevels.put(stockSymbol, riskLevel);
-	                System.out.println();
-	                System.out.println();
-	                System.out.println("Stock: " + stockSymbol + ", Risk Level: " + riskLevel);
-	            }
-	            
-	        } else {
-	            System.out.println("stockMap is null. Data might not be retrieved.");
-	        }
+		return stockRiskLevels;
+	}
 
-	        return stockRiskLevels;
-	    }
-
+	//this method assigns the stocks a risk level to get a standardized metric 
+	//betwen risk level of user and risk level of stock
 	public String determineRiskLevel(double standardDeviation) {
 		if (standardDeviation <= 1.0) {
 			return "Very Low Risk";
@@ -140,7 +156,9 @@ public class RiskController {
 			return "Very High Risk";
 		}
 	}
-
+	
+	
+	//getters and setters
 	public String getUserRisk() {
 		return userRisk;
 	}
@@ -164,7 +182,5 @@ public class RiskController {
 	public void setStockRiskLevels(Map<String, String> stockRiskLevels) {
 		this.stockRiskLevels = stockRiskLevels;
 	}
-	
-	
 
 }

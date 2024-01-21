@@ -1,3 +1,7 @@
+/*
+ * this class is for the user's registration frame. it collects all data and stores it in sql
+ */
+
 package view;
 
 import javax.swing.*;
@@ -18,8 +22,8 @@ import java.util.Map;
 
 public class RegisterFrame extends JFrame implements ActionListener {
 
+	//fields for each component
 	private JLayeredPane layeredPane;
-
 	private JTextField firstNameField;
 	private JTextField lastNameField;
 	private JTextField usernameField;
@@ -27,12 +31,14 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	private JButton fwdBtn;
 	private String firstName;
 
+	//instance of classes
 	public static UserData userData;
 	public static SurveyPanel surveyPanel;
 	public static RiskController risk;
 
 	public HomeFrame home;
 
+	//constructor
 	public RegisterFrame() {
 		super("Register Frame");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -43,6 +49,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		Font font = new Font("Arial", Font.PLAIN, 23);
 		Font placeholderfont = new Font("Arial", Font.PLAIN, 15);
 
+		//set background image
 		ImageIcon backgroundImg = new ImageIcon("images/profileBg.png");
 		layeredPane = new JLayeredPane();
 		layeredPane.setPreferredSize(new Dimension(backgroundImg.getIconWidth(), backgroundImg.getIconHeight()));
@@ -105,6 +112,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		layeredPane.add(passwordField, Integer.valueOf(1));
 		layeredPane.add(ageField, Integer.valueOf(1));
 		layeredPane.add(moneyField, Integer.valueOf(1));
+		layeredPane.add(imageLabel, Integer.valueOf(0));
 
 		// create and add survey panel (questions) to frame
 		surveyPanel = new SurveyPanel();
@@ -121,10 +129,10 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		fwdBtn.setBounds(1200, 1000, confirmIcon.getIconWidth(), confirmIcon.getIconHeight());
 		fwdBtn.addActionListener(this);
 
-		layeredPane.add(imageLabel, Integer.valueOf(0));
 
 		layeredPane.add(fwdBtn, Integer.valueOf(2));
 
+		//add scroll
 		JScrollPane jsp = new JScrollPane(layeredPane);
 		jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		jsp.getVerticalScrollBar().setUnitIncrement(12);
@@ -133,34 +141,6 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		setVisible(true);
 	}
 
-//    // method to create a JTextField
-//    private JTextField createTextField(int x, int y, int width, int height) {
-//        JTextField textField = new JTextField();
-//        textField.setBounds(x, y, width, height);
-//        textField.addActionListener(this);
-//        textField.setBackground(new Color(233, 233, 233));
-//        textField.setFont(new Font("Arial", Font.PLAIN, 15));
-//        textField.setForeground(Color.GRAY);
-//
-//        // Add focus listener to handle placeholder behavior
-//        textField.addFocusListener(new FocusListener() {
-//            @Override
-//            public void focusGained(FocusEvent e) {
-//                if (textField.getText().isEmpty()) {
-//                    textField.setForeground(Color.BLACK); // Change text color on focus
-//                }
-//            }
-//
-//            @Override
-//            public void focusLost(FocusEvent e) {
-//                if (textField.getText().isEmpty()) {
-//                    textField.setForeground(Color.GRAY); // Change text color on focus lost
-//                }
-//            }
-//        });
-//
-//        return textField;
-//    }
 
 	// method to create a JTextField with placeholder text
 	private JTextField createPlaceholderTextField(String placeholder, int x, int y, int width, int height) {
@@ -169,15 +149,15 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		textField.addActionListener(this);
 		textField.setBackground(new Color(233, 233, 233));
 		textField.setFont(new Font("Arial", Font.PLAIN, 15));
-		// Set placeholder text color
+		// set placeholder text color
 		textField.setForeground(Color.GRAY);
-		// Add focus listener to handle placeholder behavior
+		// add focus listener to handle placeholder behavior
 		textField.addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {
 				if (textField.getText().equals(placeholder)) {
 					textField.setText("");
-					textField.setForeground(Color.BLACK); // Change text color on focus
+					textField.setForeground(Color.BLACK); // change text color on focus
 				}
 			}
 
@@ -185,7 +165,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 			public void focusLost(FocusEvent e) {
 				if (textField.getText().isEmpty()) {
 					textField.setText(placeholder);
-					textField.setForeground(Color.GRAY); // Change text color on focus lost
+					textField.setForeground(Color.GRAY); // change text color on focus lost
 				}
 			}
 		});
@@ -226,21 +206,26 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		System.out.println("Risk: " + userData.getRisk());
 	}
 	
-	
+	//handles all user's actions
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//when forward button is clicked
 		if (e.getSource() == fwdBtn) {
+			//popualte data
 			collectUserData();
 
+			//analyze risk of user
 			RiskController risk = new RiskController();
 			RecommendationController recommend = new RecommendationController();
 
+			//start webscrapping
 			try {
 				StockSymbolsController.getMostActiveStockSymbols();
 			} catch (IOException i) {
 				i.printStackTrace();
 			}
 
+			//analyze risk of stock
 			RiskController.stockController = new StockController();
 			RiskController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
 			risk.determineStockRisk();
@@ -259,30 +244,19 @@ public class RegisterFrame extends JFrame implements ActionListener {
 			ChartController chartController = new ChartController();
 			chartController.generateCharts(userData.getRisk());
 			
+			//dissplay results 
 			 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
 			earningsPanel.processSelectedStocks(userData.getMoney());
 
+			//update database
 			LoginController.addUserToDatabase(userData);
 
+			//chose this frame
 			SwingUtilities.invokeLater(() -> {
 				dispose();
 			});
 		}
 	}
 
-//	// Method to calculate risk using RiskController and print results
-//	private void calculateRiskAndPrintResults() {
-//	    // Assuming riskController is an instance of RiskController
-//	    RiskController riskController = new RiskController();
-//
-//	    // Call calculateRisk method with the buttonValues HashMap
-//	    int userRisk = riskController.calculateRisk(SurveyPanel.buttonValues);
-//
-//	    // testing
-//	    System.out.println("User's Risk: " + userRisk);
-//	}
 
-//	public static void main(String[] args) {
-//		new RegisterFrame();
-//	}
 }

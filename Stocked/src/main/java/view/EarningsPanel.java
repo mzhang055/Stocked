@@ -1,6 +1,6 @@
 /*
  * this class retrieves and displays the user's potential gains/loss if they were to 
- * invest  one of their recommended stocks at a given time.
+ * invest one of their recommended stocks at a given time.
  */
 
 package view;
@@ -30,8 +30,6 @@ public class EarningsPanel extends JPanel {
 	private JDateChooser dateChooser; // Date chooser component
 	private JComboBox<String> stockComboBox; // Combo box for stocks
 
-	// private ArrayList<String> clickedValues = new ArrayList<>(); // ArrayList to
-	// store values
 
 	// variables and data structures
 	private String updated;
@@ -147,6 +145,7 @@ public class EarningsPanel extends JPanel {
 	}
 
 	
+	//this method updates the label fr financial analysis
 	private void updateRecommendationLabel() {
 
 		double profitLoss = stockController.getProfitLoss();

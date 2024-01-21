@@ -1,46 +1,26 @@
+/*
+ * this class contains all needed attributes of a stock
+ */
+
 package model;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class Stock {
 
+	// fields
 	private String ticker;
 	private double closePrice;
 	private double percentageDeviation;
 	public HashMap<String, Double> stockMap;
 
+	// constructor
 	public Stock() {
 		super();
 
 	}
 
-    public HashMap<String, Double> getStockMap(String csvFilePath) {
-       stockMap = new HashMap<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(csvFilePath))) {
-            // Read the first line (header) to skip it
-            String header = reader.readLine();
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Split the line by comma
-                String[] parts = line.split(",");
-                if (parts.length > 0) {
-                    // The first column is assumed to be the key (string), and the value is null
-                    stockMap.put(parts[0], null);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return stockMap;
-    }
-
-
+	// setters and getters
 	public String getTicker() {
 		return ticker;
 	}

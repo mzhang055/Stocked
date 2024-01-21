@@ -1,3 +1,7 @@
+/*
+ * this panel displays the chart of 10 recommended stocks 
+ */
+
 package view;
 
 import javax.swing.*;
@@ -12,18 +16,18 @@ import controller.ChartController;
 
 public class RecommendationPanel extends JPanel {
 
-  
+	//constructor and frame set up
     public RecommendationPanel() {
         setLayout(new BorderLayout());
 
         // Get the ChartPanel from ChartController
         ChartPanel chartPanel = ChartController.getChartPanel();
 
-        // Check if the chartPanel is not null before adding it
+        // check if the chartPanel is not null before adding it
         if (chartPanel != null) {
             add(chartPanel, BorderLayout.CENTER);
         }
 
-        System.out.println("got the rec panel");
+      
     }
 }

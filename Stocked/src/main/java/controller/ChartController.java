@@ -55,6 +55,7 @@ public class ChartController {
 
 	}
 
+	//this method creates the graph using JFreeChart
 	public void generateCharts(String userRisk) {
 		// get matching stocks from RecommendationController
 		ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
@@ -62,22 +63,22 @@ public class ChartController {
 		// create a combined dataset
 		DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
 
-		// Iterate through matching stocks
+		// iterate through matching stocks
 		for (String stockSymbol : matchingStocks) {
 			System.out.println("Generating chart for stock symbol: " + stockSymbol);
 
-			// Initialize AlphaVantage
+			// initialize AlphaVantage
 			Config cfg = Config.builder().key("DDLQSEH5NHH2H6XE").timeOut(100).build();
 			AlphaVantage.api().init(cfg);
 
-			// Fetch time series data for the current stock symbol
+			// fetch time series data for the current stock symbol
 			AlphaVantage.api().timeSeries().daily().adjusted().forSymbol(stockSymbol).outputSize(OutputSize.COMPACT)
 					.dataType(DataType.JSON)
 					.onSuccess(e -> handleSuccess((TimeSeriesResponse) e, combinedDataset, stockSymbol))
 					.onFailure(e -> handleFailure((e))).fetch();
 		}
 
-		// Create a line chart with the combined dataset
+		// create a line chart with the combined dataset
 		JFreeChart chart = ChartFactory.createLineChart("Your Recommended Stocks", "Date", "Close", combinedDataset);
 
 		// use category plot to adjust date labels
@@ -85,15 +86,15 @@ public class ChartController {
 		CategoryAxis domainAxis = plot.getDomainAxis();
 		domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
 
-		// Use DateAxis to allow displaying actual dates
+		// use DateAxis to allow displaying actual dates
 		DateAxis dateAxis = new DateAxis("Date");
-		dateAxis.setDateFormatOverride(new SimpleDateFormat("yyyy-MM-dd"));
+		dateAxis.setDateFormatOverride(new SimpleDateFormat("yyyy-MM"));
 
-		// Set the tick unit to two days
-		DateTickUnit dateTickUnit = new DateTickUnit(DateTickUnitType.DAY, 2, new SimpleDateFormat("yyyy-MM-dd"));
+		// set the tick unit to two days
+		DateTickUnit dateTickUnit = new DateTickUnit(DateTickUnitType.MONTH, 1, new SimpleDateFormat("yyyy-MM"));
 		dateAxis.setTickUnit(dateTickUnit);
 
-		// Set line thickness for all series
+		//set line thickness for all series
 		LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
 		int seriesCount = combinedDataset.getRowCount();
 		for (int i = 0; i < seriesCount; i++) {
@@ -109,14 +110,14 @@ public class ChartController {
 	// run and plot the stock trends on one graph
 	public void handleSuccess(TimeSeriesResponse response, DefaultCategoryDataset combinedDataset, String stockSymbol) {
 		try {
-			// Convert TimeSeriesResponse to JSON string
+			// convert TimeSeriesResponse to JSON string
 			ObjectMapper objectMapper = new ObjectMapper();
 			String jsonResponse = objectMapper.writeValueAsString(response);
 
-			// Parse the JSON string using Jackson
+			// parse the JSON string using Jackson
 			JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 
-			// Print the parsed JSON data (testing)
+			// print the parsed JSON data (testing)
 			System.out.println(
 					"Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
 

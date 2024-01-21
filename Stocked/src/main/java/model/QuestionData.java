@@ -1,3 +1,7 @@
+/*
+ * this class set up all the questions used in the survey
+ */
+
 package model;
 
 import java.util.ArrayList;
@@ -5,16 +9,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class QuestionData {
+	
+	//fields 
 	private String questionPrompt;
-	private List<String> choices;
-	private int buttonValue; // this represents the likelihood the user selected in the survey
-	private int weighting;
 
-	public QuestionData(String questionPrompt, String... choices) {
+	//constructor that intialized the instance variable with provided variable
+	public QuestionData(String questionPrompt) {
 		this.questionPrompt = questionPrompt;
-		this.choices = Arrays.asList(choices);
+		
 	}
 
+	//this method holds all teh questions used in the survey
 	public static List<QuestionData> getQuestions() {
 		List<QuestionData> questionDataList = new ArrayList<>();
 
@@ -31,7 +36,6 @@ public class QuestionData {
 		questionDataList.add(new QuestionData(
 				"If you were to prioritize experiences like travel and personal development over saving for a traditional down payment, how likely would you be to see it as an investment in your overall well-being and happiness?"));
 
-		
 		// finance questions (more weighting)
 		questionDataList.add(new QuestionData(
 				"What is the likelihood of losing my job or experiencing a significant reduction in income in the near future?"));
@@ -40,10 +44,11 @@ public class QuestionData {
 		questionDataList.add(new QuestionData(
 				"If you were to consider freelancing or gig work over traditional employment, how likely would you be to value the flexibility and potential for higher earnings, despite the inconsistent income?"));
 
+		
 		return questionDataList;
 	}
 
-
+	//getters and setters
 	public String getQuestionPrompt() {
 		return questionPrompt;
 	}

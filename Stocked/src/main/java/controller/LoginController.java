@@ -1,3 +1,8 @@
+/*
+ * this class is responsible for handling data retrieval from the sql database,
+ * verfying the user login, and adding to the database
+ */
+
 package controller;
 
 import java.sql.PreparedStatement;
@@ -8,14 +13,13 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import model.UserData;
-import model.UserPortfolio;
 import view.HomeFrame;
 import view.RegisterFrame;
 
 public class LoginController {
 	
+	//instances
 	private static RegisterFrame register;
-	private static HomeFrame home;
 
 	// checks if a username already exists
 	public static boolean checkUsername(String username) {
@@ -66,8 +70,7 @@ public class LoginController {
 				ps.setString(5, user.getAge());
 				ps.setString(6, user.getMoney());
 				ps.setString(7, user.getRisk());
-//				ps.setString(8, user.getStock4());
-//				ps.setString(9, user.getStock5());
+
 
 				//if execution of query is successful, display message to user
 				if (ps.executeUpdate() > 0) {
@@ -125,10 +128,6 @@ public class LoginController {
 					studentData.setAge(rs.getString("age"));
 					studentData.setMoney(rs.getString("money"));
 					studentData.setRisk(rs.getString("risk"));
-//					portfolioData.setStock2(rs.getString("stock2"));
-//					portfolioData.setStock3(rs.getString("stock3"));
-//					portfolioData.setStock4(rs.getString("stock4"));
-//					portfolioData.setStock5(rs.getString("stock5"));
 
 					return studentData;
 				}
@@ -136,7 +135,7 @@ public class LoginController {
 				e.printStackTrace();
 			}
 
-			//reutrn null if no user data is found
+			//return null if no user data is found
 			return null;
 		}
 		

@@ -1,4 +1,6 @@
-
+/*
+ * this class is responsible for creating a panel filled with survey questions
+ */
 package view;
 
 import java.awt.*;
@@ -17,45 +19,52 @@ import model.UserData;
 
 public class SurveyPanel extends JPanel implements MouseListener {
 
+	//fields 
+	//set default question sizes
 	public static final int QUESTION_SIZE_X = 1440;
-	public static final int QUESTION_SIZE_Y = 900 - 115;
+	public static final int QUESTION_SIZE_Y = 785;
 
+	//fields for components
 	private JLabel questionPrompt;
 	private JButton[] buttons;
 	private JButton skipButton, backButton;
 	private JPanel buttonPanel;
 
-	// HashMap to store button values
+	// HashMap to store button values with its corresponding question
 	public static HashMap<Integer, Integer> buttonValues;
-
-	public static UserData userData;
-
-	// Index to keep track of the current question
+	// index to keep track of the current question
 	private int currentQuestionIndex;
 
+	//instances of classes
+	public static UserData userData;
+	
+	//constructor sets up the survey panel
 	public SurveyPanel() {
 		setLayout(null);
 		setOpaque(false);
 		setVisible(true);
 
-		// Initialize the HashMap
+		// initialize the HashMap
 		buttonValues = new HashMap<>();
 
-		// Initialize the current question index
+		// initialize the current question index
 		currentQuestionIndex = 0;
 
+		//call all appropriate methods to set up the panel
 		createQuestionPrompt();
 		createButtonPanel();
-		createSkipButton();
+		createForwardButton();
 		createBackButton();
 	}
 
+	//display the questionon the center of the panel
 	private void createQuestionPrompt() {
 
+		//source: https://stackoverflow.com/questions/30655246/html-text-in-jlabel-ignores-alignment-with-text-align-center
 		String questionText = "<html>" + QuestionData.getQuestions().get(currentQuestionIndex).getQuestionPrompt()
 				+ "</html>";
 
-		// Create the JLabel with padding
+		// create the JLabel with padding
 		questionPrompt = new JLabel(questionText, SwingConstants.CENTER);
 		questionPrompt.setBounds(0, 40, QUESTION_SIZE_X, 400);
 		questionPrompt.setFont(new Font("Arial", Font.BOLD, 30));
@@ -64,17 +73,20 @@ public class SurveyPanel extends JPanel implements MouseListener {
 		int padding = 100;
 		questionPrompt.setBorder(new EmptyBorder(padding, padding, padding, padding));
 
+		//styling for prompt
 		questionPrompt.setForeground(Color.decode("#666666"));
 		questionPrompt.setHorizontalAlignment(SwingConstants.CENTER);
 		questionPrompt.setVerticalAlignment(SwingConstants.CENTER);
 		add(questionPrompt);
 	}
 
+	//create panel for buttons/choices
 	private void createButtonPanel() {
-		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 0)); // Increase horizontal gap
+		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 0)); // increase horizontal gap
 		buttonPanel.setBounds(0, 300, QUESTION_SIZE_X, 200);
 		buttonPanel.setOpaque(false);
 
+		//iterate thorugh all buttons and assign them a value
 		buttons = new JButton[6];
 		for (int i = 0; i < buttons.length; i++) {
 			buttons[i] = createButton(String.valueOf(i + 1));
@@ -84,6 +96,7 @@ public class SurveyPanel extends JPanel implements MouseListener {
 		add(buttonPanel);
 	}
 
+	//create the button for the choices in survey
 	private JButton createButton(String text) {
 		JButton button = new JButton(text);
 		button.setForeground(Color.decode("#FFC566"));
@@ -93,29 +106,34 @@ public class SurveyPanel extends JPanel implements MouseListener {
 		return button;
 	}
 
-	private void createSkipButton() {
+	//create forward button
+	private void createForwardButton() {
+		//add image to button
 		ImageIcon skipIcon = new ImageIcon("images/fwdBtn.png");
 		skipButton = new JButton(skipIcon);
 		skipButton.setContentAreaFilled(false);
 		skipButton.setBorderPainted(false);
+		//set size
 		skipButton.setPreferredSize(new Dimension(200, 200));
-
 		skipButton.addMouseListener(this);
 		skipButton.setBounds(300, 600, 300, 110);
 		add(skipButton);
 	}
 
+	//create back button
 	private void createBackButton() {
 		ImageIcon backIcon = new ImageIcon("images/backBtn.png");
 		backButton = new JButton(backIcon);
 		backButton.setContentAreaFilled(false);
 		backButton.setBorderPainted(false);
+		//set size
 		backButton.setPreferredSize(new Dimension(200, 200));
 		backButton.addMouseListener(this);
 		backButton.setBounds(50, 600, 300, 110);
 		add(backButton);
 	}
 
+	//handle mouse actions
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		JButton clickedButton = (JButton) e.getSource();
@@ -175,6 +193,8 @@ public class SurveyPanel extends JPanel implements MouseListener {
 		System.out.println("Button Values: " + buttonValues);
 	}
 
+	
+	//auto-generated methods from mouseevent
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO: Handle mouse press
@@ -195,6 +215,7 @@ public class SurveyPanel extends JPanel implements MouseListener {
 		// No reset on mouse exit
 	}
 
+	//getters
 	public static int getQuestionSizeX() {
 		return QUESTION_SIZE_X;
 	}
