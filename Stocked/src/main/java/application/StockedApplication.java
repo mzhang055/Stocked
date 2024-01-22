@@ -29,7 +29,8 @@
  * 
  * MAJOR SKILLS:
  * - Object Oriented Programming principles (interfaces, composition), HashMaps, ArrayLists, basic control structures,
- * methods, JFreeChart, JSoup, MySQL, Alpha Vantage API, all dependencies were implemented with Maven
+ * methods, JFreeChart, JSoup for web scrapping on yahoo finance website, MySQL, XAMP for local hosting, Alpha Vantage API, 
+ * all dependencies were implemented with Maven
  * 
  * CONCERNS:
  * - trend projection may not be very accurate 

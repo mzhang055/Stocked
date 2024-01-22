@@ -39,26 +39,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ChartController {
 
 	// instance of classes
-	private static RecommendationController recommend;
-	private static ChartPanel chartPanel;
+	private RecommendationController recommend;
+	private  static ChartPanel chartPanel;
 
 	// storing data
 	public String seriesKey;
 	public String chartInfo;
 	private List<String> clickedDates = new ArrayList<>();
+	private ArrayList<String> matchingStocks;
 
 	
-	//constructor ensures that recommedation controller is ready for the methods in this class
-	//since they are dependant on the recoemmended stocks in order to graph it
-	public ChartController() {
-		recommend = new RecommendationController();
-
+	public ChartController(RecommendationController recommend) {
+		super();
+		this.recommend = recommend;
 	}
 
+	//constructor ensures that recommedation controller is ready for the methods in this class
+	//since they are dependant on the recoemmended stocks in order to graph it
+	
 	//this method creates the graph using JFreeChart
 	public void generateCharts(String userRisk) {
 		// get matching stocks from RecommendationController
-		ArrayList<String> matchingStocks = recommend.determineMatchingStocks(userRisk);
+		matchingStocks = recommend.determineMatchingStocks(userRisk);
 
 		// create a combined dataset
 		DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
@@ -118,8 +120,8 @@ public class ChartController {
 			JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 
 			// print the parsed JSON data (testing)
-			System.out.println(
-					"Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+//			System.out.println(
+//					"Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
 
 			// extract data from StockUnits and add to the combined dataset
 			ArrayList<StockUnit> sortedStockUnits = new ArrayList<>(response.getStockUnits());
@@ -165,12 +167,34 @@ public class ChartController {
 		ChartController.chartPanel = chartPanel;
 	}
 
-	public static RecommendationController getRecommend() {
+
+
+	public ArrayList<String> getMatchingStocks() {
+		return matchingStocks;
+	}
+
+	public void setMatchingStocks(ArrayList<String> matchingStocks) {
+		this.matchingStocks = matchingStocks;
+	}
+
+	public RecommendationController getRecommend() {
 		return recommend;
 	}
 
-	public static void setRecommend(RecommendationController recommend) {
-		ChartController.recommend = recommend;
+	public void setRecommend(RecommendationController recommend) {
+		this.recommend = recommend;
+	}
+
+	public List<String> getClickedDates() {
+		return clickedDates;
+	}
+
+	public void setClickedDates(List<String> clickedDates) {
+		this.clickedDates = clickedDates;
+	}
+
+	public void setChartInfo(String chartInfo) {
+		this.chartInfo = chartInfo;
 	}
 
 	public String getSeriesKey() {

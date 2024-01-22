@@ -10,6 +10,7 @@ import javax.swing.*;
 import com.toedter.calendar.JDateChooser;
 
 import controller.ChartController;
+import controller.RecommendationController;
 import controller.StockController;
 import model.UserData;
 
@@ -41,6 +42,7 @@ public class EarningsPanel extends JPanel {
 	private ChartController chart;
 	private StockController stockController;
 	private UserData userData;
+	private RecommendationController recommend;
 
 	// constructor passes these instances as a parameter to ensure consistency
 	private EarningsPanel(ChartController chart, UserData userData) {
@@ -102,7 +104,7 @@ public class EarningsPanel extends JPanel {
 		stockComboBox.setEditable(false);
 
 		// add the matching stocks to the combo box
-		ArrayList<String> matchingStocks = ChartController.getRecommend().determineMatchingStocks("yourRisk");
+		ArrayList<String> matchingStocks = chart.getMatchingStocks();
 		for (String stock : matchingStocks) {
 			stockComboBox.addItem(stock);
 		}

@@ -4,6 +4,8 @@
 
 package model;
 
+import java.util.ArrayList;
+
 public class UserData {
 
 	// fields for user data
@@ -14,7 +16,14 @@ public class UserData {
 	private String age;
 	private String money;
 	private String risk;
+	public ArrayList<String> matchingStocks; 
 	
+	
+	//constructor to initialize matching stocks list
+    public UserData() {
+        matchingStocks = new ArrayList<>();
+    }
+
 	
 	//getters and setters
 	public String getUsername() {
@@ -72,5 +81,14 @@ public class UserData {
 	public void setRisk(String risk) {
 		this.risk = risk;
 	}
+
+	public ArrayList<String> getMatchingStocks() {
+		return matchingStocks;
+	}
+
+    public void setMatchingStocks(ArrayList<String> matchingStocks) {
+        this.matchingStocks = matchingStocks;
+    }
+
 
 }

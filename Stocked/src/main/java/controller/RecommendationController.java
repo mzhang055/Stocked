@@ -9,13 +9,16 @@ package controller;
 import java.util.ArrayList;
 import java.util.Map;
 
+import model.UserData;
+
 public class RecommendationController {
 
 	// instance of classes
 	private static RecommendationController instance;
+	private static UserData userData = new UserData();
 
 	// store the recommended stocks
-	public ArrayList<String> matchingStocks = new ArrayList<String>();
+	// public ArrayList<String> matchingStocks = new ArrayList<String>();
 
 	// singleton design pattern ensures that a class only has one instance (controls
 	// instantiation)
@@ -28,62 +31,62 @@ public class RecommendationController {
 		return instance;
 	}
 
-	//this method compares the risks levels of the stock and the user to get the 10 recommended ones
-	//since the web scrapping retreives data in order from most active to least active, that order is 
-	//maintained thorugh the mathcing
+	
+	// this method compares the risks levels of the stock and the user to get the 10
+	// recommended ones
+	// since the web scrapping retrieves data in order from most active to least
+	// active, that order is
+	// maintained through the matching
 	public ArrayList<String> determineMatchingStocks(String userRisk) {
 		
-		//create an instance of risk controller to use the stock risk method
+		// create an instance of risk controller to use the stock risk method
 		RiskController riskController = new RiskController();
 		riskController.determineStockRisk();
 
-		//if risk controller is properly instantiated
+		// if risk controller is properly instantiated
 		if (riskController != null) {
-			
-			//populate hashmap with stock risk levels
+
+			// populate hashmap with stock risk levels
 			Map<String, String> stockRiskLevels = riskController.getStockRiskLevels();
 			if (stockRiskLevels != null) {
 				// determine risk based on stockMap values
 				int count = 0; // counter for the number of matching stocks added
+				ArrayList<String> matchingStocks = new ArrayList<>(); // Temporary list to store matching stocks
 				for (Map.Entry<String, String> entry : stockRiskLevels.entrySet()) {
 					String stockSymbol = entry.getKey();
 					String riskLevel = entry.getValue();
 
 					// compare stock risk level with user risk level
 					if (userRisk.equalsIgnoreCase(riskLevel)) {
-						// store matching stocks in the ArrayList, but limit to the first 10
+						// store matching stocks in the temporary ArrayList, but limit to the first 10
 						if (count < 10) {
 							matchingStocks.add(stockSymbol);
 							count++;
 						}
 					}
 				}
-				//error checking
+
+				// Set matching stocks using the setter method in UserData
+				userData.setMatchingStocks(matchingStocks);
+
+				// error checking
 			} else {
 				System.out.println("Stock risk levels map is null.");
 			}
 		}
 
-		//display matching stocks
+		// display matching stocks
 		printMatchingStocks();
-		return matchingStocks;
+		return userData.getMatchingStocks();
 	}
 
-	//this method is repsonsible for iterating thorugh the matching stocks and diplaying them all
+	// this method is responsible for iterating through the matching stocks and
+	// displaying them all
 	public void printMatchingStocks() {
 		// Print the matching stocks
 		System.out.println("Matching Stocks:");
-		for (String stockSymbol : matchingStocks) {
+		for (String stockSymbol : userData.getMatchingStocks()) {
 			System.out.println(stockSymbol);
 		}
 	}
-
-	public ArrayList<String> getMatchingStocks() {
-		return matchingStocks;
-	}
-
-	public void setMatchingStocks(ArrayList<String> matchingStocks) {
-		this.matchingStocks = matchingStocks;
-	}
-
 }

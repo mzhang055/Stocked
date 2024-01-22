@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 import controller.ChartController;
 import controller.ConnectionController;
 import controller.LoginController;
+import controller.RecommendationController;
 import model.UserData;
 
 public class WelcomeFrame extends JFrame implements ActionListener {
@@ -47,7 +48,9 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 	
 
 	public static UserData userData = new UserData();
-	public static ChartController chart = new ChartController();
+	public static RecommendationController recommendationController = RecommendationController.getInstance();
+	public static ChartController chartController = new ChartController(recommendationController);
+
 
 	// constructor
 	public WelcomeFrame() {

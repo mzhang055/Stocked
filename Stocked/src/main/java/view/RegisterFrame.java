@@ -241,7 +241,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 			recommend.determineMatchingStocks(userData.getRisk());
 
 			// display charts of recommended stocks
-			ChartController chartController = new ChartController();
+			ChartController chartController = new ChartController(recommend);
 			chartController.generateCharts(userData.getRisk());
 			
 			//dissplay results 
