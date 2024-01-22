@@ -50,7 +50,8 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 	public static UserData userData = new UserData();
 	public static RecommendationController recommendationController = RecommendationController.getInstance();
 	public static ChartController chartController = new ChartController(recommendationController);
-
+	public static EarningsPanel earnings;
+	
 
 	// constructor
 	public WelcomeFrame() {
@@ -59,6 +60,7 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 		setSize(1440, 900);
 		
 		Color lightgrey = Color.decode("#D3D3D3");
+		//earnings = new EarningsPanel(chartController, userData, userData.getMatchingStocks());
 
 		// set up the background image
 		ImageIcon backgroundImg = new ImageIcon("images/welcomeBg.png");
@@ -182,7 +184,9 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 						String username = WelcomeFrame.getDataUsername();
 						UserData userData = LoginController.getUserData(username);
 						dispose();
-						homeFrame = new HomeFrame();
+						homeFrame = new HomeFrame(userData.getMatchingStocks());
+						earnings = new EarningsPanel(chartController, userData, userData.getMatchingStocks());
+						chartController = new ChartController(recommendationController);
 					});
 
 				}

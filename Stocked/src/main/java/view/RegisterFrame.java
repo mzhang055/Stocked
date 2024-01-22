@@ -251,7 +251,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 			chartController.generateCharts(userData.getRisk());
 			
 			//dissplay results 
-			 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
+			 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData, userData.getMatchingStocks());
 			earningsPanel.processSelectedStocks(userData.getMoney());
 
 			//update database

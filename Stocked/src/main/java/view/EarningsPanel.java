@@ -45,10 +45,13 @@ public class EarningsPanel extends JPanel {
 	private RecommendationController recommend;
 
 	// constructor passes these instances as a parameter to ensure consistency
-	private EarningsPanel(ChartController chart, UserData userData) {
+	EarningsPanel(ChartController chart, UserData userData, ArrayList<String> matchingStocks) {
 		this.chart = chart; // Store the reference to ChartController
 		this.userData = userData;
 
+	
+		
+		
 		// Use a BorderLayout for the main panel
 		setLayout(new BorderLayout());
 
@@ -103,11 +106,23 @@ public class EarningsPanel extends JPanel {
 		stockComboBox = new JComboBox<>();
 		stockComboBox.setEditable(false);
 
+		
+		
 		// add the matching stocks to the combo box
-		ArrayList<String> matchingStocks = chart.getMatchingStocks();
-		for (String stock : matchingStocks) {
-			stockComboBox.addItem(stock);
+		//this retrieves data for a new user. since they dont have a preexising record
+		if(matchingStocks == null ) {
+			ArrayList<String> matchingStocksNew = chart.getMatchingStocks();
+			for (String stock : matchingStocksNew) {
+				stockComboBox.addItem(stock);
+			}
 		}
+		//this retrieves data for an existing user
+		else {
+			for (String stock : matchingStocks) {
+				stockComboBox.addItem(stock);
+			}
+		}
+		
 
 		// add the components to the input panel
 		inputPanel.add(dateChooser);
@@ -123,9 +138,9 @@ public class EarningsPanel extends JPanel {
 	// (many parts of the program want to use this--shared resource)
 	// https://softwareengineering.stackexchange.com/questions/235527/when-to-use-a-singleton-and-when-to-use-a-static-class
 
-	public static EarningsPanel getInstance(ChartController chart, UserData userData) {
+	public static EarningsPanel getInstance(ChartController chart, UserData userData, ArrayList<String> matchingStocks) {
 		if (instance == null) {
-			instance = new EarningsPanel(chart, userData);
+			instance = new EarningsPanel(chart, userData, matchingStocks);
 		}
 		return instance;
 	}

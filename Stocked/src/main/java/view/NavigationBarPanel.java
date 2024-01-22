@@ -115,7 +115,7 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 
 		// handle signout. this closes the application
 		else if (e.getSource() == signOutBtn) {
-			new HomeFrame();
+			
 			System.exit(0);
 
 
