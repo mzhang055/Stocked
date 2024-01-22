@@ -35,8 +35,11 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	public static UserData userData;
 	public static SurveyPanel surveyPanel;
 	public static RiskController risk;
+	public ChartController chart;
+	public RecommendationController recommend;
 
 	public HomeFrame home;
+	
 
 	//constructor
 	public RegisterFrame() {
@@ -139,6 +142,8 @@ public class RegisterFrame extends JFrame implements ActionListener {
 
 		getContentPane().add(jsp);
 		setVisible(true);
+		
+		chart = new ChartController(recommend);
 	}
 
 
@@ -179,14 +184,15 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	public void collectUserData() {
 		System.out.println("testing" + firstName);
 		userData = new UserData();
+		recommend = new RecommendationController();
+		
 		userData.setUsername(usernameField.getText());
 		userData.setPassword(passwordField.getText());
 		userData.setFirstName(firstNameField.getText());
 		userData.setLastName(lastNameField.getText());
-
 	    userData.setAge(ageField.getText());
 	    userData.setMoney(moneyField.getText());
-
+	    userData.setMatchingStocks(chart.getMatchingStocks());
 
 		// collect risk information
 		RiskController riskController = new RiskController();
@@ -249,7 +255,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 			earningsPanel.processSelectedStocks(userData.getMoney());
 
 			//update database
-			LoginController.addUserToDatabase(userData);
+			LoginController.addUserToDatabase(userData, chartController);
 
 			//chose this frame
 			SwingUtilities.invokeLater(() -> {

@@ -53,7 +53,7 @@ public class LoginController {
 	}
 
 	// add user to the mysql database
-	public static void addUserToDatabase(UserData user) {
+	public static void addUserToDatabase(UserData user, ChartController chart) {
 
 		PreparedStatement ps; // for execution
 
@@ -74,8 +74,10 @@ public class LoginController {
 			ps.setString(6, user.getMoney());
 			ps.setString(7, user.getRisk());
 			
+			
+			
 		      // iterate over the ArrayList and set values for rec1 to rec10
-	        ArrayList<String> recommendations = user.getMatchingStocks();
+	        ArrayList<String> recommendations = chart.getMatchingStocks();
 	        for (int i = 0; i < 10; i++) {
 	            // check if there are enough recommendations in the ArrayList
 	            if (i < recommendations.size()) {
