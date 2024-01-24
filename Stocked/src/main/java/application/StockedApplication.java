@@ -33,8 +33,7 @@
  * all dependencies were implemented with Maven
  * 
  * CONCERNS:
- * - trend projection may not be very accurate 
- * - user portfolio is incomplete
+ * - trend projection may not be very accurate due ro ARMIA parameters 
  * - SQL database can only be accessed locally
  * 
  */

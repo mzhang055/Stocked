@@ -35,7 +35,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	//instance of classes
 	public static UserData userData;
 	public static SurveyPanel surveyPanel;
-	public static RiskController risk;
+	//public static RiskController risk;
 	public ChartController chart;
 	public RecommendationController recommend;
 
@@ -47,11 +47,6 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		super("Register Frame");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(1440, 900);
-
-		// set the background color for all text fields.
-//		Color color = new Color(233, 233, 233);
-//		Font font = new Font("Arial", Font.PLAIN, 23);
-//		Font placeholderfont = new Font("Arial", Font.PLAIN, 15);
 
 		//set background image
 		ImageIcon backgroundImg = new ImageIcon("images/profileBg.png");
@@ -80,45 +75,6 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		fwdBtn.setBorderPainted(false);
 		fwdBtn.setBounds(1200, 1000, confirmIcon.getIconWidth(), confirmIcon.getIconHeight());
 		fwdBtn.addActionListener(this);
-
-
-		// --- User Info
-		// add first name text field
-//		firstNameField = new JTextField();
-//		firstNameField.setBounds(100, 200, 500, 80);
-//		firstNameField.addActionListener(this);
-//		firstNameField.setBackground(color);
-//		firstNameField.setFont(font);
-//
-//		lastNameField = new JTextField();
-//		lastNameField.setBounds(745, 200, 500, 80);
-//		lastNameField.addActionListener(this);
-//		lastNameField.setBackground(color);
-//		lastNameField.setFont(font);
-//
-//		usernameField = new JTextField();
-//		usernameField.setBounds(100, 350, 500, 80);
-//		usernameField.addActionListener(this);
-//		usernameField.setBackground(color);
-//		usernameField.setFont(font);
-//
-//		passwordField = new JTextField();
-//		passwordField.setBounds(745, 350, 500, 80);
-//		passwordField.addActionListener(this);
-//		passwordField.setBackground(color);
-//		passwordField.setFont(font);
-//
-//		ageField = new JTextField();
-//		ageField.setBounds(100, 400, 500, 80);
-//		ageField.addActionListener(this);
-//		ageField.setBackground(color);
-//		ageField.setFont(font);
-//
-//		moneyField = new JTextField();
-//		moneyField.setBounds(745, 400, 500, 80);
-//		moneyField.addActionListener(this);
-//		moneyField.setBackground(color);
-//		moneyField.setFont(font);
 
 		// add styling for text field
 		firstNameField = createPlaceholderTextField("Enter your first name", 100, 200, 500, 80);
@@ -205,8 +161,8 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	    userData.setMatchingStocks(chart.getMatchingStocks());
 
 		// collect risk information
-		RiskController riskController = new RiskController();
-		riskController.determineUserRisk(SurveyPanel.buttonValues);
+		UserRiskController riskController = new UserRiskController();
+		riskController.calculateRisk(SurveyPanel.buttonValues);
 
 		userData.setRisk(riskController.getUserRisk());
 
@@ -227,7 +183,8 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	public void processData() {
 
 		//analyze risk of user
-		RiskController risk = new RiskController();
+		UserRiskController userRisk = new UserRiskController();
+		StockRiskController stockRisk = new StockRiskController();
 		RecommendationController recommend = new RecommendationController();
 
 		//start webscrapping
@@ -238,9 +195,9 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		}
 
 		//analyze risk of stock
-		RiskController.stockController = new StockController();
-		RiskController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
-		risk.determineStockRisk();
+		StockRiskController.setStockController(new StockController());
+		StockRiskController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
+		stockRisk.determineStockRisk();
 
 		// RiskController risk = new RiskController();
 		// Ensure userData is not null
@@ -257,7 +214,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		chartController.generateCharts(userData.getRisk());
 		
 		//dissplay results 
-		 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
+		 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData, userData.getMatchingStocks());
 		earningsPanel.processSelectedStocks(userData.getMoney());
 		
 		//update database
@@ -265,6 +222,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 
 	}
 	
+	//this method provides validation checks for each field to ensure all data is valid
 	public boolean accountSecurity() {
 	    // check username length
 	    if (usernameField.getText().length() < 8) {
@@ -278,6 +236,12 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	        JOptionPane.showMessageDialog(null, "Password must be at least 8 characters long, include at least 2 numbers, and have at least 2 special characters (.,!).");
 	        return false;
 	    }
+	    
+	    //check if a username already exists in the database
+		if (LoginController.checkUsername(userData.getUsername())) {
+			JOptionPane.showMessageDialog(null, "This username already exists.");
+			return false;
+		}
 
 	    // check if age is a valid integer
 	    try {
@@ -303,10 +267,11 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 	    // when forward button is clicked
 	    if (e.getSource() == fwdBtn) {
-	        if (accountSecurity()) {
-	            // populate data
-	            collectUserData();
+	    	// populate/collect user data
+            collectUserData();
 
+	        if (accountSecurity()) {
+	            
 	            // send all data to necessary classes
 	            processData();
 

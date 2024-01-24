@@ -40,14 +40,15 @@ public class RecommendationController {
 	public ArrayList<String> determineMatchingStocks(String userRisk) {
 		
 		// create an instance of risk controller to use the stock risk method
-		RiskController riskController = new RiskController();
-		riskController.determineStockRisk();
+		UserRiskController userRiskController = new UserRiskController();
+		StockRiskController stockRiskController = new StockRiskController();
+		stockRiskController.determineStockRisk();
 
 		// if risk controller is properly instantiated
-		if (riskController != null) {
+		if (userRiskController != null) {
 
 			// populate hashmap with stock risk levels
-			Map<String, String> stockRiskLevels = riskController.getStockRiskLevels();
+			Map<String, String> stockRiskLevels = stockRiskController.getStockRiskLevels();
 			if (stockRiskLevels != null) {
 				// determine risk based on stockMap values
 				int count = 0; // counter for the number of matching stocks added

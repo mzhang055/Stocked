@@ -1,7 +1,3 @@
-/*
- * this panel displays the chart of 10 recommended stocks 
- */
-
 package view;
 
 import javax.swing.*;
@@ -10,17 +6,18 @@ import org.jfree.chart.ChartPanel;
 
 import java.awt.*;
 
+import controller.PredictionController;
 
-import controller.ChartController;
-
-public class RecommendationPanel extends JPanel {
+public class PredictResultPanel extends JPanel {
 
 	//constructor and frame set up
-    public RecommendationPanel() {
+    public PredictResultPanel(ChartPanel chartPanel) {
+    	
+    	System.out.println("in here");
         setLayout(new BorderLayout());
 
         // Get the ChartPanel from ChartController
-        ChartPanel chartPanel = ChartController.getChartPanel();
+        chartPanel = PredictionController.getChartPanelPredict();
 
         // check if the chartPanel is not null before adding it
         if (chartPanel != null) {

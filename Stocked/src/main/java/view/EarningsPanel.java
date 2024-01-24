@@ -43,7 +43,7 @@ public class EarningsPanel extends JPanel implements ActionListener {
 	private UserData userData;
 
 	// constructor passes these instances as a parameter to ensure consistency
-	private EarningsPanel(ChartController chart, UserData userData) {
+	private EarningsPanel(ChartController chart, UserData userData, ArrayList<String> matchingStocks) {
 		this.chart = chart; // Store the reference to ChartController
 		this.userData = userData;
 
@@ -72,9 +72,18 @@ public class EarningsPanel extends JPanel implements ActionListener {
 		stockComboBox.setEditable(false);
 
 		// add the matching stocks to the combo box
-		ArrayList<String> matchingStocks = chart.getMatchingStocks();
-		for (String stock : matchingStocks) {
-			stockComboBox.addItem(stock);
+		userData = new UserData();
+		if (chart == null) {
+
+			for (String stock : userData.getMatchingStocks()) {
+				stockComboBox.addItem(stock);
+			}
+		} else {
+			ArrayList<String> matchingStocksReturning = chart.getMatchingStocks();
+			for (String stock : matchingStocksReturning) {
+				stockComboBox.addItem(stock);
+			}
+
 		}
 
 		// Set preferred sizes for dateChooser and stockComboBox
@@ -98,9 +107,9 @@ public class EarningsPanel extends JPanel implements ActionListener {
 	// (many parts of the program want to use this--shared resource)
 	// https://softwareengineering.stackexchange.com/questions/235527/when-to-use-a-singleton-and-when-to-use-a-static-class
 
-	public static EarningsPanel getInstance(ChartController chart, UserData userData) {
-		if (instance == null) {
-			instance = new EarningsPanel(chart, userData);
+	public static EarningsPanel getInstance(ChartController chart, UserData userData, ArrayList<String>matchingStocks) {
+		if (instance == null) { 
+			instance = new EarningsPanel(chart, userData, matchingStocks);
 		}
 		return instance;
 	}
@@ -215,7 +224,7 @@ public class EarningsPanel extends JPanel implements ActionListener {
 			System.out.println("TESTING FOR SHARE:" + stockController.getNumShares());
 
 			updateRecommendationLabel();
-			
+
 			// reflect the changes on panel
 			revalidate();
 			repaint();

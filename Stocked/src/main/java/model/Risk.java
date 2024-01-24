@@ -5,10 +5,9 @@
 
 package model;
 
-import java.util.HashMap;
+import java.util.Map;
+
 
 public interface Risk {
-	
-	int calculateRisk (HashMap<Integer, Integer> buttonValues);
-
+     public String calculateRisk(Map<Integer, Integer> buttonValues);
 }

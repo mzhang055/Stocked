@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import controller.LoginController;
-import controller.RiskController;
 import model.QuestionData;
 import model.UserData;
 

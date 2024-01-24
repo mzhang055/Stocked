@@ -11,6 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import model.UserData;
@@ -19,8 +21,12 @@ import view.RegisterFrame;
 
 public class LoginController {
 
+	// fields to hold data
+	public static String dataUsername;
+
 	// instances
 	private static RegisterFrame register;
+	private static UserData userData;
 
 	// checks if a username already exists
 	public static boolean checkUsername(String username) {
@@ -73,21 +79,18 @@ public class LoginController {
 			ps.setString(5, user.getAge());
 			ps.setString(6, user.getMoney());
 			ps.setString(7, user.getRisk());
-			
-			
-			
-		      // iterate over the ArrayList and set values for rec1 to rec10
-	        ArrayList<String> recommendations = chart.getMatchingStocks();
-	        for (int i = 0; i < 10; i++) {
-	            // check if there are enough recommendations in the ArrayList
-	            if (i < recommendations.size()) {
-	                ps.setString(8 + i, recommendations.get(i));
-	            } else {
-	                // if not enough recommendations, set to an empty string or null as needed
-	                ps.setString(8 + i, "");
-	            }
-	        }
-			
+
+			// iterate over the ArrayList and set values for rec1 to rec10
+			ArrayList<String> recommendations = chart.getMatchingStocks();
+			for (int i = 0; i < 10; i++) {
+				// check if there are enough recommendations in the ArrayList
+				if (i < recommendations.size()) {
+					ps.setString(8 + i, recommendations.get(i));
+				} else {
+					// if not enough recommendations, set to an empty string or null as needed
+					ps.setString(8 + i, "");
+				}
+			}
 
 			// if execution of query is successful, display message to user
 			if (ps.executeUpdate() > 0) {
@@ -102,7 +105,7 @@ public class LoginController {
 				SwingUtilities.invokeLater(() -> {
 					if (register != null) {
 						System.out.println("not null");
-						new HomeFrame();
+						new HomeFrame(user.getMatchingStocks());
 
 						register.dispose();
 					}
@@ -142,16 +145,15 @@ public class LoginController {
 				userData.setAge(rs.getString("age"));
 				userData.setMoney(rs.getString("money"));
 				userData.setRisk(rs.getString("risk"));
-				
-				
-				  // Use a loop to add rec1 to rec10 based on column names
-	            for (int i = 1; i <= 10; i++) {
-	                String recColumnName = "rec" + i;
-	                userData.getMatchingStocks().add(rs.getString(recColumnName));
-	            }
 
-	            // Set matching stocks in the UserData object
-	            userData.setMatchingStocks(userData.getMatchingStocks());
+				// Use a loop to add rec1 to rec10 based on column names
+				for (int i = 1; i <= 10; i++) {
+					String recColumnName = "rec" + i;
+					userData.getMatchingStocks().add(rs.getString(recColumnName));
+				}
+
+				// Set matching stocks in the UserData object
+				userData.setMatchingStocks(userData.getMatchingStocks());
 
 				return userData;
 			}
@@ -186,6 +188,48 @@ public class LoginController {
 		}
 
 		// reutrn false is no user found
+		return false;
+	}
+
+	public static boolean checkLoginCredentials(JTextField usernameField, JPasswordField passwordField) {
+		// get the data the user entered in the text fields
+		dataUsername = usernameField.getText().trim();
+
+		// convert the character array to a string
+		// they were chracters initially in order to hide what the user was entering
+		// in that field
+		char[] passwordChars = passwordField.getPassword();
+		String dataPassword = new String(passwordChars);
+
+		PreparedStatement ps; // execute query
+		ResultSet rs; // store query
+
+		// SQL query to select user data based on the username and password
+		String query = "SELECT * FROM `users` WHERE `username` =? AND `password` =?";
+
+		try {
+			// get prepared statement by connecting with database
+			ps = ConnectionController.getConnection().prepareStatement(query);
+
+			// set data
+			ps.setString(1, dataUsername);
+			ps.setString(2, dataPassword);
+
+			// execute the query
+			rs = ps.executeQuery();
+
+			// if result set has data, display message to user
+			if (rs.next()) {
+				String firstName = rs.getString("firstName");
+				JOptionPane.showMessageDialog(null, "Successful Login");
+				return true;
+
+			}
+
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		return false;
 	}
 

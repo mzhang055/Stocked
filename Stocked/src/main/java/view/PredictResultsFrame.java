@@ -1,35 +1,29 @@
 package view;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.time.Second;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
-
-import controller.ChartController;
-import model.UserData;
-
-import org.jdesktop.swingx.JXDatePicker;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.ArrayList;
 
-public class HomeFrame extends JFrame {
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 
+import org.jfree.chart.ChartPanel;
+
+import controller.ChartController;
+
+public class PredictResultsFrame extends JFrame implements ActionListener {
+
+	// fields
 	private NavigationBarPanel navPanel;
-	private RecommendationPanel recommendPanel;
-
-	private ChartController chartController;
-	private UserData userData;
+	private PredictResultPanel resultsPanel;
+	
 
 	// constructor
-	public HomeFrame(ArrayList<String> matchingStocks) {
+	public PredictResultsFrame(String symbol) {
 		// set up the frame
 		super("Home Frame");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -50,25 +44,32 @@ public class HomeFrame extends JFrame {
 		navPanel.setBounds(0, 0, 1440, 115);
 		imageLabel.add(navPanel);
 
-		// add earnings panel
-		EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData, matchingStocks );
 
-
-		earningsPanel.setBounds(900, 100, 500, 700);
-
-		// create and add chart panel to RecommendationPanel
-		recommendPanel = new RecommendationPanel();
-		recommendPanel.setBounds(0, 100, 900, 700);
+	
+//		// Creates the results graph JPanel
+//		resultsPanel = new PredictResultPanel();
+//		resultsPanel.setBounds(0,100, 1440, 900);
+//		imageLabel.add(resultsPanel);
 
 		// add background image to the last layer
 		layeredPane.add(imageLabel, Integer.valueOf(0));
-		layeredPane.add(recommendPanel, Integer.valueOf(1));
-		layeredPane.add(earningsPanel, Integer.valueOf(1));
+		layeredPane.add(resultsPanel, Integer.valueOf(1));
 
 		getContentPane().add(layeredPane);
+		//getContentPane().add(new ChartPanel(chart));
 
 		// set visible
 		setVisible(true);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public static void main(String[] args) {
+		new PredictResultsFrame("TSLA");
 	}
 
 }

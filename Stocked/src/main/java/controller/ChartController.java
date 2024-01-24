@@ -111,44 +111,40 @@ public class ChartController {
 	// if the api sucessfully retreives historic stock data, then this method will
 	// run and plot the stock trends on one graph
 	public void handleSuccess(TimeSeriesResponse response, DefaultCategoryDataset combinedDataset, String stockSymbol) {
-		try {
-			// convert TimeSeriesResponse to JSON string
-			ObjectMapper objectMapper = new ObjectMapper();
-			String jsonResponse = objectMapper.writeValueAsString(response);
+	    try {
+	        // convert TimeSeriesResponse to JSON string
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        String jsonResponse = objectMapper.writeValueAsString(response);
 
-			// parse the JSON string using Jackson
-			JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+	        // parse the JSON string using Jackson
+	        JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 
-			// print the parsed JSON data (testing)
-//			System.out.println(
-//					"Parsed JSON Data:\n" + objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+	        // extract data from StockUnits and add to the combined dataset
+	        ArrayList<StockUnit> sortedStockUnits = new ArrayList<>(response.getStockUnits());
+	        Collections.sort(sortedStockUnits, (unit1, unit2) -> unit1.getDate().compareTo(unit2.getDate()));
 
-			// extract data from StockUnits and add to the combined dataset
-			ArrayList<StockUnit> sortedStockUnits = new ArrayList<>(response.getStockUnits());
-			Collections.sort(sortedStockUnits, (unit1, unit2) -> unit1.getDate().compareTo(unit2.getDate()));
+	        // iterate through all the stocks and get their date and closing price. this
+	        // info is used to graph
+	        for (StockUnit stockUnit : sortedStockUnits) {
+	            String date = stockUnit.getDate();
+	            double close = stockUnit.getClose();
 
-			// iterate through all the stocks and get their date and closing price. this
-			// info is used to graph
-			for (StockUnit stockUnit : sortedStockUnits) {
-				String date = stockUnit.getDate();
-				double close = stockUnit.getClose();
+	            // format date as year and week
+	            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+	            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM dd");
 
-				// format date as year and week
-				SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
-				SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+	            // parse the date and format it
+	            Date parsedDate = inputFormat.parse(date);
+	            Calendar calendar = Calendar.getInstance();
+	            calendar.setTime(parsedDate);
+	            String formattedDate = outputFormat.format(parsedDate);
 
-				// parse the date and format it
-				Date parsedDate = inputFormat.parse(date);
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTime(parsedDate);
-				String formattedDate = outputFormat.format(parsedDate);
-
-				// add the data point to the combined dataset for graphing
-				combinedDataset.addValue(close, stockSymbol, formattedDate);
-			}
-		} catch (Exception e) {
-			handleFailure(new AlphaVantageException("Failed to create chart."));
-		}
+	            // add the data point to the combined dataset for graphing
+	            combinedDataset.addValue(close, stockSymbol, formattedDate);
+	        }
+	    } catch (Exception e) {
+	        handleFailure(new AlphaVantageException("Failed to create chart."));
+	    }
 	}
 
 	// if data is not sucessfully retrieved, this method will run (mainly used for

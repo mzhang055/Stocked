@@ -8,6 +8,7 @@ package view;
 import javax.swing.*;
 
 import controller.LoginController;
+import model.UserData;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -20,6 +21,7 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 
 	// instance of classes
 	private static HomeFrame home;
+	private static UserData userData;
 
 	// constructor sets up the panel with all components
 	public NavigationBarPanel() {
@@ -48,7 +50,7 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 		signOutBtn.setForeground(fontColor);
 
 		// set layout manager and space out buttons
-		setLayout(new FlowLayout(FlowLayout.CENTER, 100, 10));
+		setLayout(new FlowLayout(FlowLayout.CENTER, 120, 10));
 
 		// add buttons to panel
 		add(homeBtn);
@@ -91,7 +93,8 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 
 		// open home frame
 		if (e.getSource() == investBtn) {
-			new HomeFrame();
+			userData  = new UserData();
+			new HomeFrame(userData.getMatchingStocks());
 
 		}
 

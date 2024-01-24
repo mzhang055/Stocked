@@ -23,7 +23,7 @@ public class StockController {
 	// this data structure stores the stocks sybmol as the string and its
 	// corresponding
 	// standard deviation as the double
-	private Map<String, Double> stockMap;
+	public static Map<String, Double> stockMap;
 
 	// variables to store data
 	private int numShares;
@@ -35,7 +35,7 @@ public class StockController {
 	public String riskLevel;
 
 	// instances
-	private RiskController risk;
+	private StockRiskController risk;
 
 	// this method sets up the requests to the stock api by giving it my api key
 	// this is reused through this class to make requests and get data
@@ -194,7 +194,7 @@ public class StockController {
 		// (dataPoints -1) to account for errors if there is no previous data point
 		standardDeviation = Math.sqrt(result / (dataPoints - 1));
 
-		risk = new RiskController();
+		risk = new StockRiskController();
 		// determine and print the risk level based on ranges
 		riskLevel = risk.determineRiskLevel(standardDeviation);
 
@@ -203,16 +203,18 @@ public class StockController {
 	}
 
 	// getters and setters
-	public Map<String, Double> getStockMap() {
-		return stockMap;
-	}
-
-	public void setStockMap(Map<String, Double> stockMap) {
-		this.stockMap = stockMap;
-	}
+	
 
 	public double getStandardDeviation() {
 		return standardDeviation;
+	}
+
+	public static Map<String, Double> getStockMap() {
+		return stockMap;
+	}
+
+	public static void setStockMap(Map<String, Double> stockMap) {
+		StockController.stockMap = stockMap;
 	}
 
 	public void setStandardDeviation(double standardDeviation) {
