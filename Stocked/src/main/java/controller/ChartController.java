@@ -36,20 +36,17 @@ import com.crazzyghost.alphavantage.timeseries.response.TimeSeriesResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import model.UserData;
-
 public class ChartController {
 
 	// instance of classes
 	private RecommendationController recommend;
-	private static ChartPanel chartPanel;
-	private UserData userData;
+	private  static ChartPanel chartPanel;
 
 	// storing data
 	public String seriesKey;
 	public String chartInfo;
 	private List<String> clickedDates = new ArrayList<>();
-	//private ArrayList<String> matchingStocks;
+	private ArrayList<String> matchingStocks;
 
 	
 	public ChartController(RecommendationController recommend) {
@@ -63,13 +60,13 @@ public class ChartController {
 	//this method creates the graph using JFreeChart
 	public void generateCharts(String userRisk) {
 		// get matching stocks from RecommendationController
-		recommend.determineMatchingStocks(userRisk);
+		matchingStocks = recommend.determineMatchingStocks(userRisk);
 
 		// create a combined dataset
 		DefaultCategoryDataset combinedDataset = new DefaultCategoryDataset();
 
 		// iterate through matching stocks
-		for (String stockSymbol : userData.getMatchingStocks()) {
+		for (String stockSymbol : matchingStocks) {
 			System.out.println("Generating chart for stock symbol: " + stockSymbol);
 
 			// initialize AlphaVantage
@@ -171,6 +168,15 @@ public class ChartController {
 	}
 
 
+
+	public ArrayList<String> getMatchingStocks() {
+		return matchingStocks;
+	}
+
+	public void setMatchingStocks(ArrayList<String> matchingStocks) {
+		this.matchingStocks = matchingStocks;
+	}
+
 	public RecommendationController getRecommend() {
 		return recommend;
 	}
@@ -201,11 +207,6 @@ public class ChartController {
 
 	public String getChartInfo() {
 		return chartInfo;
-	}
-
-	public ArrayList<String> getMatchingStocks() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

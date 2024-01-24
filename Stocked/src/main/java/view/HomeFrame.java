@@ -8,7 +8,6 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import controller.ChartController;
-import controller.RecommendationController;
 import model.UserData;
 
 import org.jdesktop.swingx.JXDatePicker;
@@ -17,7 +16,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,10 +26,9 @@ public class HomeFrame extends JFrame implements ActionListener {
 
 	private ChartController chartController;
 	private UserData userData;
-	private RecommendationController recommendController;
 
 	// constructor
-	public HomeFrame(ArrayList<String> matchingStocks) {
+	public HomeFrame() {
 		// set up the frame
 		super("Home Frame");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,13 +48,9 @@ public class HomeFrame extends JFrame implements ActionListener {
 		navPanel = new NavigationBarPanel();
 		navPanel.setBounds(0, 0, 1440, 115);
 		imageLabel.add(navPanel);
-		
-		//
-	
-		chartController = new ChartController(recommendController);
 
 		// add earnings panel
-		EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData, matchingStocks);
+		EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
 
 
 		earningsPanel.setBounds(900, 100, 500, 700);

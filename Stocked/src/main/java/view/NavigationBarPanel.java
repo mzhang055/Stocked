@@ -9,7 +9,6 @@ import javax.swing.*;
 
 import controller.LoginController;
 
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,10 +21,9 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 	// instance of classes
 	private static HomeFrame home;
 
-
 	// constructor sets up the panel with all components
 	public NavigationBarPanel() {
-		
+
 		// set up panel
 		setOpaque(false);
 		setPreferredSize(new Dimension(1440, 115));
@@ -49,7 +47,6 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 		signOutBtn.setFont(buttonFont);
 		signOutBtn.setForeground(fontColor);
 
-
 		// set layout manager and space out buttons
 		setLayout(new FlowLayout(FlowLayout.CENTER, 100, 10));
 
@@ -57,9 +54,8 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 		add(homeBtn);
 		add(investBtn);
 		add(predictionBtn);
-	
-		add(signOutBtn);
 
+		add(signOutBtn);
 
 		// add action listeners
 		homeBtn.addActionListener(this);
@@ -67,7 +63,6 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 		predictionBtn.addActionListener(this);
 
 		signOutBtn.addActionListener(this);
-
 
 	}
 
@@ -90,37 +85,32 @@ public class NavigationBarPanel extends JPanel implements ActionListener {
 		return button;
 	}
 
-	
-
 	// this method handles all user actions in the frame
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
 		// open home frame
-		if (e.getSource() == homeBtn) {
-
-
-
-			// open recoemmdned investments
-		} else if (e.getSource() == investBtn) {
-			
+		if (e.getSource() == investBtn) {
+			new HomeFrame();
 
 		}
 
-		// open stock predictions 
+		// open stock predictions
 		else if (e.getSource() == predictionBtn) {
+			new PredictFrame();
 
-			
 		}
 
-		// handle signout. this closes the application
+		// handle signout. this shows a confirmation dialog before closing the
+		// application
 		else if (e.getSource() == signOutBtn) {
-			
-			System.exit(0);
+			int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to sign out?",
+					"Sign Out Confirmation", JOptionPane.YES_NO_OPTION);
 
-
+			if (confirm == JOptionPane.YES_OPTION) {
+				System.exit(0);
+			}
 		}
-
 
 	}
 

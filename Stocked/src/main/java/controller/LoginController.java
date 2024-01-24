@@ -102,7 +102,7 @@ public class LoginController {
 				SwingUtilities.invokeLater(() -> {
 					if (register != null) {
 						System.out.println("not null");
-						new HomeFrame(chart.getMatchingStocks());
+						new HomeFrame();
 
 						register.dispose();
 					}

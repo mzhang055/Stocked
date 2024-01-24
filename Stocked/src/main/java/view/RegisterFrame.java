@@ -64,41 +64,41 @@ public class RegisterFrame extends JFrame implements ActionListener {
 
 		// --- User Info
 		// add first name text field
-		firstNameField = new JTextField();
-		firstNameField.setBounds(100, 200, 500, 80);
-		firstNameField.addActionListener(this);
-		firstNameField.setBackground(color);
-		firstNameField.setFont(font);
-
-		lastNameField = new JTextField();
-		lastNameField.setBounds(745, 200, 500, 80);
-		lastNameField.addActionListener(this);
-		lastNameField.setBackground(color);
-		lastNameField.setFont(font);
-
-		usernameField = new JTextField();
-		usernameField.setBounds(100, 350, 500, 80);
-		usernameField.addActionListener(this);
-		usernameField.setBackground(color);
-		usernameField.setFont(font);
-
-		passwordField = new JTextField();
-		passwordField.setBounds(745, 350, 500, 80);
-		passwordField.addActionListener(this);
-		passwordField.setBackground(color);
-		passwordField.setFont(font);
-
-		ageField = new JTextField();
-		ageField.setBounds(100, 400, 500, 80);
-		ageField.addActionListener(this);
-		ageField.setBackground(color);
-		ageField.setFont(font);
-
-		moneyField = new JTextField();
-		moneyField.setBounds(745, 400, 500, 80);
-		moneyField.addActionListener(this);
-		moneyField.setBackground(color);
-		moneyField.setFont(font);
+//		firstNameField = new JTextField();
+//		firstNameField.setBounds(100, 200, 500, 80);
+//		firstNameField.addActionListener(this);
+//		firstNameField.setBackground(color);
+//		firstNameField.setFont(font);
+//
+//		lastNameField = new JTextField();
+//		lastNameField.setBounds(745, 200, 500, 80);
+//		lastNameField.addActionListener(this);
+//		lastNameField.setBackground(color);
+//		lastNameField.setFont(font);
+//
+//		usernameField = new JTextField();
+//		usernameField.setBounds(100, 350, 500, 80);
+//		usernameField.addActionListener(this);
+//		usernameField.setBackground(color);
+//		usernameField.setFont(font);
+//
+//		passwordField = new JTextField();
+//		passwordField.setBounds(745, 350, 500, 80);
+//		passwordField.addActionListener(this);
+//		passwordField.setBackground(color);
+//		passwordField.setFont(font);
+//
+//		ageField = new JTextField();
+//		ageField.setBounds(100, 400, 500, 80);
+//		ageField.addActionListener(this);
+//		ageField.setBackground(color);
+//		ageField.setFont(font);
+//
+//		moneyField = new JTextField();
+//		moneyField.setBounds(745, 400, 500, 80);
+//		moneyField.addActionListener(this);
+//		moneyField.setBackground(color);
+//		moneyField.setFont(font);
 
 		// add styling for text field
 		firstNameField = createPlaceholderTextField("Enter your first name", 100, 200, 500, 80);
@@ -251,7 +251,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 			chartController.generateCharts(userData.getRisk());
 			
 			//dissplay results 
-			 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData, userData.getMatchingStocks());
+			 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
 			earningsPanel.processSelectedStocks(userData.getMoney());
 
 			//update database

@@ -1,9 +1,3 @@
-/*
- * this class creates the welcome frame where users can sign up
- * or login to their account. it provides a brief description to what 
- * the program does
- */
-
 package view;
 
 import java.awt.Color;
@@ -11,26 +5,17 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
-import controller.ChartController;
-import controller.ConnectionController;
-import controller.LoginController;
-import controller.RecommendationController;
 import model.UserData;
 
 public class WelcomeFrame extends JFrame implements ActionListener {
@@ -41,17 +26,10 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 	private JLabel titleLabel;
 	private JTextArea descLabel;
 	private JTextField usernameField;
-	private JPasswordField passwordField;
-	
-	public static String dataUsername;
-	public static HomeFrame homeFrame;
+	private JTextField passwordField;
 	
 
 	public static UserData userData = new UserData();
-	public static RecommendationController recommendationController = RecommendationController.getInstance();
-	public static ChartController chartController = new ChartController(recommendationController);
-	public static EarningsPanel earnings;
-	
 
 	// constructor
 	public WelcomeFrame() {
@@ -60,7 +38,6 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 		setSize(1440, 900);
 		
 		Color lightgrey = Color.decode("#D3D3D3");
-		//earnings = new EarningsPanel(chartController, userData, userData.getMatchingStocks());
 
 		// set up the background image
 		ImageIcon backgroundImg = new ImageIcon("images/welcomeBg.png");
@@ -146,86 +123,16 @@ public class WelcomeFrame extends JFrame implements ActionListener {
 		}
 		
 		else if (e.getSource() == loginBtn) {
-			// get the data the user entered in the text fields
-			dataUsername = usernameField.getText().trim();
-			
-			//convert the character array to a string
-			//they were chracters initially in order to hide what the user was entering
-			//in that field
-			char[] passwordChars = passwordField.getPassword();
-			String dataPassword = new String(passwordChars);
-
-			PreparedStatement ps; //execute query
-			ResultSet rs; //store query
-
-			//SQL query to select user data based on the username and password
-			String query = "SELECT * FROM `users` WHERE `username` =? AND `password` =?";
-
-			try {
-				//get prepared statement by connecting with database
-				ps = ConnectionController.getConnection().prepareStatement(query);
-				
-				//set data
-				ps.setString(1, dataUsername);
-				ps.setString(2, dataPassword);
-
-				//execute the query
-				rs = ps.executeQuery();
-
-				//if result set has data, display message to user
-				if (rs.next()) {
-					String firstName = rs.getString("firstName");
-					JOptionPane.showMessageDialog(null, "Successful Login");
-					
-					// close current frame
-					// swing utilities is needed here to ensure current frame is disposed
-					// since this occurs after the joptionpane message
-					SwingUtilities.invokeLater(() -> {
-						String username = WelcomeFrame.getDataUsername();
-						UserData userData = LoginController.getUserData(username);
-						dispose();
-						homeFrame = new HomeFrame(userData.getMatchingStocks());
-						earnings = new EarningsPanel(chartController, userData, userData.getMatchingStocks());
-						chartController = new ChartController(recommendationController);
-					});
-
-				}
-
-				//display error message to user
-				else {
-					JOptionPane.showMessageDialog(null, "Invalid Login.");
-					SwingUtilities.invokeLater(() -> {
-						dispose();
-						new WelcomeFrame();
-					});
-				}
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
+			new RegisterFrame();
+			dispose();
 		}
 		
 
 	}
 
-	public static String getDataUsername() {
-		return dataUsername;
+	public static void main(String[] args) {
+		WelcomeFrame welcome = new WelcomeFrame();
+		welcome.setVisible(true);
 	}
-
-	public static void setDataUsername(String dataUsername) {
-		WelcomeFrame.dataUsername = dataUsername;
-	}
-
-	public static UserData getUserData() {
-		return userData;
-	}
-
-	public static void setUserData(UserData userData) {
-		WelcomeFrame.userData = userData;
-	}
-	
-	
-
 
 }

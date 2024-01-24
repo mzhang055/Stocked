@@ -22,15 +22,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-public class EarningsPanel extends JPanel {
+public class EarningsPanel extends JPanel implements ActionListener {
 
 	// fields for components of panel
 	private JLabel infoLabel;
 	private JLabel recommendLabel;
-	private JButton refreshButton;
+	private JButton searchButton;
 	private JDateChooser dateChooser; // Date chooser component
 	private JComboBox<String> stockComboBox; // Combo box for stocks
-
 
 	// variables and data structures
 	private String updated;
@@ -42,59 +41,25 @@ public class EarningsPanel extends JPanel {
 	private ChartController chart;
 	private StockController stockController;
 	private UserData userData;
-	private RecommendationController recommend;
 
 	// constructor passes these instances as a parameter to ensure consistency
-	EarningsPanel(ChartController chart, UserData userData, ArrayList<String> matchingStocks) {
+	private EarningsPanel(ChartController chart, UserData userData) {
 		this.chart = chart; // Store the reference to ChartController
 		this.userData = userData;
 
-	
-		
-		
 		// Use a BorderLayout for the main panel
 		setLayout(new BorderLayout());
 
-		ImageIcon bg = new ImageIcon("images/widget.png");
-		// Create a label to hold the background image
-		JLabel backgroundLabel = new JLabel(bg);
-		backgroundLabel.setLayout(new BorderLayout());
-		// add(backgroundLabel, BorderLayout.CENTER);
-
 		// Use a JPanel with FlowLayout for the date chooser and combo box
 		JPanel inputPanel = new JPanel();
-		inputPanel.setLayout(new FlowLayout());
+		inputPanel.setLayout(new GridLayout(2, 2, 10, 10)); // Rows, Columns, HGap, VGap
 
-		// Create a "Refresh" button
-		refreshButton = new JButton("Search");
-		refreshButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("last clicked: " + getUpdated());
-
-				// Retrieve the selected date from the date chooser
-				Date selectedDate = dateChooser.getDate();
-				// Format the date (this needs to be done for the api)
-				String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(selectedDate);
-
-				// Retrieve the selected stock from the combo box
-				String selectedStock = (String) stockComboBox.getSelectedItem();
-
-				// Update the HashMap with the selected stock and date
-				selectedStocks.put(selectedStock, formattedDate);
-
-				System.out.println();
-				System.out.println("Hashmap:");
-				processSelectedStocks(userData.getMoney());
-
-				System.out.println("TESTING FOR SHARE:" + stockController.getNumShares());
-
-				updateRecommendationLabel();
-				// Repaint the panel to reflect the changes
-				revalidate();
-				repaint();
-			}
-		});
+		// Create a serahu button
+		ImageIcon searchIcon = new ImageIcon("images/searchBtn.png");
+		searchButton = new JButton(searchIcon);
+		searchButton.setContentAreaFilled(false);
+		searchButton.setBorderPainted(false);
+		searchButton.addActionListener(this);
 
 		// Create a date chooser to pick stock dates
 		dateChooser = new JDateChooser();
@@ -106,31 +71,26 @@ public class EarningsPanel extends JPanel {
 		stockComboBox = new JComboBox<>();
 		stockComboBox.setEditable(false);
 
-		
-		
 		// add the matching stocks to the combo box
-		//this retrieves data for a new user. since they dont have a preexising record
-		if(matchingStocks == null ) {
-			ArrayList<String> matchingStocksNew = chart.getMatchingStocks();
-			for (String stock : matchingStocksNew) {
-				stockComboBox.addItem(stock);
-			}
+		ArrayList<String> matchingStocks = chart.getMatchingStocks();
+		for (String stock : matchingStocks) {
+			stockComboBox.addItem(stock);
 		}
-		//this retrieves data for an existing user
-		else {
-			for (String stock : matchingStocks) {
-				stockComboBox.addItem(stock);
-			}
-		}
-		
+
+		// Set preferred sizes for dateChooser and stockComboBox
+		dateChooser.setPreferredSize(new Dimension(150, 30));
+		stockComboBox.setPreferredSize(new Dimension(150, 30));
 
 		// add the components to the input panel
-		inputPanel.add(dateChooser);
+		// add the components to the input panel
+		inputPanel.add(new JLabel("Stock:")); // Label for stockComboBox
 		inputPanel.add(stockComboBox);
+		inputPanel.add(new JLabel("Date:")); // Label for dateChooser
+		inputPanel.add(dateChooser);
 
 		// add the input panel and refresh button to the main panel
 		add(inputPanel, BorderLayout.NORTH);
-		add(refreshButton, BorderLayout.SOUTH);
+		add(searchButton, BorderLayout.SOUTH);
 	}
 
 	// use a singleton instead of a static class in order to limit the program to
@@ -138,9 +98,9 @@ public class EarningsPanel extends JPanel {
 	// (many parts of the program want to use this--shared resource)
 	// https://softwareengineering.stackexchange.com/questions/235527/when-to-use-a-singleton-and-when-to-use-a-static-class
 
-	public static EarningsPanel getInstance(ChartController chart, UserData userData, ArrayList<String> matchingStocks) {
+	public static EarningsPanel getInstance(ChartController chart, UserData userData) {
 		if (instance == null) {
-			instance = new EarningsPanel(chart, userData, matchingStocks);
+			instance = new EarningsPanel(chart, userData);
 		}
 		return instance;
 	}
@@ -161,8 +121,7 @@ public class EarningsPanel extends JPanel {
 		}
 	}
 
-	
-	//this method updates the label fr financial analysis
+	// this method updates the label for financial analysis
 	private void updateRecommendationLabel() {
 
 		double profitLoss = stockController.getProfitLoss();
@@ -181,8 +140,7 @@ public class EarningsPanel extends JPanel {
 				+ stockController.getDate() + "</div>"
 				+ "<div style='font-size: 24px;'> you would experience a profit/loss of </div>"
 				+ "<div style='color: #F4AA31; font-size: 30px;'>" + formattedProfitLoss + "</div>" + "</div></html>";
-		
-		
+
 		// Remove the previous recommendLabel if it exists
 		if (recommendLabel != null) {
 			remove(recommendLabel);
@@ -232,6 +190,36 @@ public class EarningsPanel extends JPanel {
 
 	public HashMap<String, String> getSelectedStocks() {
 		return selectedStocks;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == searchButton) {
+			System.out.println("last clicked: " + getUpdated());
+
+			// Retrieve the selected date from the date chooser
+			Date selectedDate = dateChooser.getDate();
+			// Format the date (this needs to be done for the api)
+			String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(selectedDate);
+
+			// Retrieve the selected stock from the combo box
+			String selectedStock = (String) stockComboBox.getSelectedItem();
+
+			// Update the HashMap with the selected stock and date
+			selectedStocks.put(selectedStock, formattedDate);
+
+			System.out.println();
+			System.out.println("Hashmap:");
+			processSelectedStocks(userData.getMoney());
+
+			System.out.println("TESTING FOR SHARE:" + stockController.getNumShares());
+
+			updateRecommendationLabel();
+			
+			// reflect the changes on panel
+			revalidate();
+			repaint();
+		}
 	}
 
 }
