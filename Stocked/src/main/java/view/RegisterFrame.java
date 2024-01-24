@@ -29,6 +29,7 @@ public class RegisterFrame extends JFrame implements ActionListener {
 	private JTextField usernameField;
 	private JTextField passwordField, ageField, moneyField;
 	private JButton fwdBtn;
+	private JButton backBtn;
 	private String firstName;
 
 	//instance of classes
@@ -48,9 +49,9 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		setSize(1440, 900);
 
 		// set the background color for all text fields.
-		Color color = new Color(233, 233, 233);
-		Font font = new Font("Arial", Font.PLAIN, 23);
-		Font placeholderfont = new Font("Arial", Font.PLAIN, 15);
+//		Color color = new Color(233, 233, 233);
+//		Font font = new Font("Arial", Font.PLAIN, 23);
+//		Font placeholderfont = new Font("Arial", Font.PLAIN, 15);
 
 		//set background image
 		ImageIcon backgroundImg = new ImageIcon("images/profileBg.png");
@@ -61,6 +62,25 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		imageLabel.setBounds(0, 0, backgroundImg.getIconWidth(), backgroundImg.getIconHeight());
 		Dimension imageSize = new Dimension(backgroundImg.getIconWidth(), backgroundImg.getIconHeight());
 		imageLabel.setPreferredSize(imageSize);
+		
+		//create a back button to return to welcome frame
+		// get started button that leads user to the sign up
+		ImageIcon backIcon = new ImageIcon("images/backWelcomeBtn.png");
+		backBtn = new JButton(backIcon);
+		backBtn.setContentAreaFilled(false);
+		backBtn.setBorderPainted(false);
+		backBtn.setBounds(30, 70, backIcon.getIconWidth(), backIcon.getIconHeight());
+		backBtn.addActionListener(this);
+		
+		// add the forwards button
+		ImageIcon confirmIcon = new ImageIcon("images/finishBtn.png");
+		fwdBtn = new JButton(confirmIcon);
+		fwdBtn.setOpaque(false);
+		fwdBtn.setContentAreaFilled(false);
+		fwdBtn.setBorderPainted(false);
+		fwdBtn.setBounds(1200, 1000, confirmIcon.getIconWidth(), confirmIcon.getIconHeight());
+		fwdBtn.addActionListener(this);
+
 
 		// --- User Info
 		// add first name text field
@@ -116,24 +136,14 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		layeredPane.add(ageField, Integer.valueOf(1));
 		layeredPane.add(moneyField, Integer.valueOf(1));
 		layeredPane.add(imageLabel, Integer.valueOf(0));
+		layeredPane.add(backBtn, Integer.valueOf(2));
+		layeredPane.add(fwdBtn, Integer.valueOf(2));
 
 		// create and add survey panel (questions) to frame
 		surveyPanel = new SurveyPanel();
 		surveyPanel.setBounds(0, 350, SurveyPanel.getQuestionSizeX(), SurveyPanel.getQuestionSizeY());
 		layeredPane.add(surveyPanel, Integer.valueOf(2));
 		surveyPanel.setVisible(true);
-
-		// add the forwards button
-		ImageIcon confirmIcon = new ImageIcon("images/finishBtn.png");
-		fwdBtn = new JButton(confirmIcon);
-		fwdBtn.setOpaque(false);
-		fwdBtn.setContentAreaFilled(false);
-		fwdBtn.setBorderPainted(false);
-		fwdBtn.setBounds(1200, 1000, confirmIcon.getIconWidth(), confirmIcon.getIconHeight());
-		fwdBtn.addActionListener(this);
-
-
-		layeredPane.add(fwdBtn, Integer.valueOf(2));
 
 		//add scroll
 		JScrollPane jsp = new JScrollPane(layeredPane);
@@ -212,56 +222,106 @@ public class RegisterFrame extends JFrame implements ActionListener {
 		System.out.println("Risk: " + userData.getRisk());
 	}
 	
-	//handles all user's actions
+	//this method holds all of the data that needs to be processed for the application
+	// to run
+	public void processData() {
+
+		//analyze risk of user
+		RiskController risk = new RiskController();
+		RecommendationController recommend = new RecommendationController();
+
+		//start webscrapping
+		try {
+			StockSymbolsController.getMostActiveStockSymbols();
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+
+		//analyze risk of stock
+		RiskController.stockController = new StockController();
+		RiskController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
+		risk.determineStockRisk();
+
+		// RiskController risk = new RiskController();
+		// Ensure userData is not null
+		if (userData != null) {
+			// Check if risk determination is synchronous
+			System.out.println("User's risk: " + userData.getRisk());
+		}
+
+		// determine the user's matching stocks
+		recommend.determineMatchingStocks(userData.getRisk());
+
+		// display charts of recommended stocks
+		ChartController chartController = new ChartController(recommend);
+		chartController.generateCharts(userData.getRisk());
+		
+		//dissplay results 
+		 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
+		earningsPanel.processSelectedStocks(userData.getMoney());
+		
+		//update database
+		LoginController.addUserToDatabase(userData, chartController);
+
+	}
+	
+	public boolean accountSecurity() {
+	    // check username length
+	    if (usernameField.getText().length() < 8) {
+	        JOptionPane.showMessageDialog(null, "Username must be at least 8 characters long.");
+	        return false;
+	    }
+
+	    // check password length and requirements
+	    String password = passwordField.getText();
+	    if (password.length() < 8 || !password.matches(".*\\d.*\\d.*") || !password.matches(".*[.,!].*[.,!].*")) {
+	        JOptionPane.showMessageDialog(null, "Password must be at least 8 characters long, include at least 2 numbers, and have at least 2 special characters (.,!).");
+	        return false;
+	    }
+
+	    // check if age is a valid integer
+	    try {
+	        Integer.parseInt(ageField.getText());
+	    } catch (NumberFormatException e) {
+	        JOptionPane.showMessageDialog(null, "Age must be a valid integer.");
+	        return false;
+	    }
+
+	    // check if money is a valid double
+	    try {
+	        Double.parseDouble(moneyField.getText());
+	    } catch (NumberFormatException e) {
+	        JOptionPane.showMessageDialog(null, "Money must be a valid number.");
+	        return false;
+	    }
+
+	    // all checks passed, return true
+	    return true;
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		//when forward button is clicked
-		if (e.getSource() == fwdBtn) {
-			//popualte data
-			collectUserData();
+	    // when forward button is clicked
+	    if (e.getSource() == fwdBtn) {
+	        if (accountSecurity()) {
+	            // populate data
+	            collectUserData();
 
-			//analyze risk of user
-			RiskController risk = new RiskController();
-			RecommendationController recommend = new RecommendationController();
+	            // send all data to necessary classes
+	            processData();
 
-			//start webscrapping
-			try {
-				StockSymbolsController.getMostActiveStockSymbols();
-			} catch (IOException i) {
-				i.printStackTrace();
-			}
+	            // close this frame
+	            SwingUtilities.invokeLater(() -> {
+	                dispose();
+	            });
+	        }
+	    }
 
-			//analyze risk of stock
-			RiskController.stockController = new StockController();
-			RiskController.stockController.populateStockMap(StockSymbolsController.getStockMap(), 500);
-			risk.determineStockRisk();
-
-			// RiskController risk = new RiskController();
-			// Ensure userData is not null
-			if (userData != null) {
-				// Check if risk determination is synchronous
-				System.out.println("User's risk: " + userData.getRisk());
-			}
-
-			// determine the user's matching stocks
-			recommend.determineMatchingStocks(userData.getRisk());
-
-			// display charts of recommended stocks
-			ChartController chartController = new ChartController(recommend);
-			chartController.generateCharts(userData.getRisk());
-			
-			//dissplay results 
-			 EarningsPanel earningsPanel = EarningsPanel.getInstance(chartController, userData);
-			earningsPanel.processSelectedStocks(userData.getMoney());
-
-			//update database
-			LoginController.addUserToDatabase(userData, chartController);
-
-			//chose this frame
-			SwingUtilities.invokeLater(() -> {
-				dispose();
-			});
-		}
+	    // returns to welcome frame
+	    else if (e.getSource() == backBtn) {
+	        new WelcomeFrame();
+	        dispose();
+	    }
 	}
 
 
